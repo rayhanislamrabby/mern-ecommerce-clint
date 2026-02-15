@@ -1,38 +1,61 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
-import { Link, NavLink } from "react-router-dom";
+import { NavLink } from "react-router";
 
-const Login = () => {
+
+const Register = () => {
   const {
     register,
     handleSubmit,
+    watch,
     formState: { errors },
   } = useForm();
 
   const [showPassword, setShowPassword] = useState(false);
+  const [password, setPassword] = useState("");
+
+  useEffect(() => {
+    const subscription = watch((value) => setPassword(value.password));
+    return () => subscription.unsubscribe();
+  }, [watch]);
 
   const onSubmit = (data) => {
-    console.log("Login Data:", data);
+    console.log("Register Data:", data);
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
       <div className="w-full max-w-md bg-white rounded-2xl shadow-xl p-8">
         <h2 className="text-3xl font-bold text-center text-gray-800">
-          Welcome Back 👋
+          Create Account ✨
         </h2>
         <p className="text-center text-gray-500 mt-1 mb-6">
-          Login to continue shopping
+          Sign up to start shopping
         </p>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          {/* Name */}
+          <div>
+            <input
+              type="text"
+              placeholder="Full name"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg
+              text-gray-800 placeholder-gray-400
+              focus:outline-none focus:ring-2 focus:ring-blue-500"
+              {...register("name", { required: "Name is required" })}
+            />
+            {errors.name && (
+              <p className="text-red-500 text-sm mt-1">{errors.name.message}</p>
+            )}
+          </div>
+
           {/* Email */}
           <div>
             <input
               type="email"
-              placeholder="Enter your email"
+              placeholder="Email address"
               className="w-full px-4 py-3 border border-gray-300 rounded-lg
               text-gray-800 placeholder-gray-400
               focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -49,7 +72,7 @@ const Login = () => {
           <div className="relative">
             <input
               type={showPassword ? "text" : "password"}
-              placeholder="Enter your password"
+              placeholder="Create password"
               className="w-full px-4 py-3 border border-gray-300 rounded-lg
               text-gray-800 placeholder-gray-400
               focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -62,22 +85,25 @@ const Login = () => {
             >
               {showPassword ? <FaEyeSlash /> : <FaEye />}
             </span>
-
-            {errors.password && (
-              <p className="text-red-500 text-sm mt-1">
-                {errors.password.message}
-              </p>
-            )}
           </div>
 
-          {/* Forgot */}
-          <div className="text-right">
-            <Link
-              to="/auth/register"
-              className="text-sm text-blue-600 hover:underline"
-            >
-              Forgot password?
-            </Link>
+          {/* Confirm */}
+          <div>
+            <input
+              type="password"
+              placeholder="Confirm password"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg
+              text-gray-800 placeholder-gray-400
+              focus:outline-none focus:ring-2 focus:ring-blue-500"
+              {...register("confirmPassword", {
+                validate: (v) => v === password || "Passwords do not match",
+              })}
+            />
+            {errors.confirmPassword && (
+              <p className="text-red-500 text-sm mt-1">
+                {errors.confirmPassword.message}
+              </p>
+            )}
           </div>
 
           {/* Button */}
@@ -86,7 +112,7 @@ const Login = () => {
             className="w-full py-3 bg-blue-600 text-white rounded-lg
             font-semibold hover:bg-blue-700 transition"
           >
-            Login
+            Sign Up
           </button>
         </form>
 
@@ -108,13 +134,14 @@ const Login = () => {
           </span>
         </button>
 
+        {/* Login link */}
         <p className="text-center text-sm text-gray-600 mt-6">
-          Don’t have an account?
+          Already have an account?{" "}
           <NavLink
-            to="/register"
+            to="/login"
             className="text-blue-600 font-semibold hover:underline"
           >
-            Sign up
+            Login
           </NavLink>
         </p>
       </div>
@@ -122,4 +149,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default Register;

@@ -1,12 +1,11 @@
-import React from 'react';
-import Login from '../pages/Authentication/Login';
-
+import React from "react";
+import { Outlet } from "react-router-dom";
 const AuthLayouts = () => {
-    return (
-        <div>
-            <Login></Login>
-        </div>
-    );
+  return (
+    <div>
+      <Outlet />
+    </div>
+  );
 };
 
 export default AuthLayouts;
