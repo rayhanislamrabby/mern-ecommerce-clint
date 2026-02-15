@@ -1,5 +1,6 @@
 // import React, { useState } from "react";
 // import { NavLink } from "react-router-dom";
+// import useAuth from "../../../hooks/useAuth";
 
 // const NAV_LINKS = {
 //   home: { name: "Home", path: "/" },
@@ -12,6 +13,8 @@
 // const Navbar = () => {
 //   const links = Object.values(NAV_LINKS);
 //   const [openMenu, setOpenMenu] = useState(false);
+// const {user, logOut} = useAuth()
+//   const user = null; // future auth
 
 //   return (
 //     <>
@@ -31,15 +34,6 @@
 //           <NavLink to="/" className="text-xl font-bold text-primary">
 //             ShopZone
 //           </NavLink>
-
-//           {/* Mobile search beside logo */}
-//           <div className="md:hidden">
-//             <input
-//               type="text"
-//               placeholder="Search..."
-//               className="input input-bordered input-sm w-28"
-//             />
-//           </div>
 //         </div>
 
 //         {/* Center - Desktop menu */}
@@ -62,20 +56,28 @@
 
 //         {/* Right */}
 //         <div className="navbar-end gap-2">
-//           {/* Desktop search */}
-//           <div className="form-control hidden md:block">
-//             <input
-//               type="text"
-//               placeholder="Search products"
-//               className="input input-bordered w-40 md:w-56"
-//             />
-//           </div>
+//           {/* Search */}
+//           <input
+//             type="text"
+//             placeholder="Search"
+//             className="input input-bordered w-28 sm:w-40 md:w-56"
+//           />
 
 //           {/* Wishlist */}
 //           <button className="btn btn-ghost btn-circle">❤</button>
 
 //           {/* Cart */}
 //           <button className="btn btn-ghost btn-circle">🛒</button>
+
+//           {/* Login → Desktop only */}
+//           {!user && (
+//             <NavLink
+//               to="/login"
+//               className="btn btn-primary btn-sm hidden lg:inline-flex"
+//             >
+//               Login
+//             </NavLink>
+//           )}
 //         </div>
 //       </nav>
 
@@ -86,6 +88,7 @@
 //             ✕
 //           </button>
 
+//           Links
 //           <ul className="space-y-4 text-lg">
 //             {links.map((link) => (
 //               <li key={link.name}>
@@ -95,6 +98,19 @@
 //               </li>
 //             ))}
 //           </ul>
+
+//           {/* Mobile Login bottom */}
+//           {!user && (
+//             <div className="mt-8">
+//               <NavLink
+//                 to="/login"
+//                 onClick={() => setOpenMenu(false)}
+//                 className="btn btn-primary w-full"
+//               >
+//                 Login
+//               </NavLink>
+//             </div>
+//           )}
 //         </div>
 //       )}
 //     </>
@@ -103,14 +119,10 @@
 
 // export default Navbar;
 
-
-
-
-
-
-
 import React, { useState } from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
+import useAuth from "../../../hooks/useAuth";
+import toast from "react-hot-toast";
 
 const NAV_LINKS = {
   home: { name: "Home", path: "/" },
@@ -124,7 +136,30 @@ const Navbar = () => {
   const links = Object.values(NAV_LINKS);
   const [openMenu, setOpenMenu] = useState(false);
 
-  const user = null; // future auth
+  // 🔐 Auth state
+  const { user, logOut } = useAuth();
+
+  // const handleLogout = () => {
+  //   logOut().catch(console.error);
+  // };
+
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logOut()
+      .then(() => {
+        toast.success("You’ve been safely logged out. See you again!", {
+          duration: 2000,
+        });
+
+        setTimeout(() => {
+          navigate("/login");
+        }, 800);
+      })
+      .catch(() => {
+        toast.error("Logout failed. Try again.");
+      });
+  };
 
   return (
     <>
@@ -179,8 +214,22 @@ const Navbar = () => {
           {/* Cart */}
           <button className="btn btn-ghost btn-circle">🛒</button>
 
-          {/* Login → Desktop only */}
-          {!user && (
+          {/* User name (desktop) */}
+          {user && (
+            <span className="hidden lg:block text-xs  text-blue-400">
+              {user.displayName || user.email}
+            </span>
+          )}
+
+          {/* Auth button (desktop) */}
+          {user ? (
+            <button
+              onClick={handleLogout}
+              className="btn btn-error btn-sm hidden lg:inline-flex"
+            >
+              Logout
+            </button>
+          ) : (
             <NavLink
               to="/login"
               className="btn btn-primary btn-sm hidden lg:inline-flex"
@@ -209,9 +258,26 @@ const Navbar = () => {
             ))}
           </ul>
 
-          {/* Mobile Login bottom */}
-          {!user && (
-            <div className="mt-8">
+          {/* Mobile user info */}
+          {user && (
+            <p className="mt-6 font-medium text-gray-700">
+              {user.displayName || user.email}
+            </p>
+          )}
+
+          {/* Mobile Auth button */}
+          <div className="mt-4">
+            {user ? (
+              <button
+                onClick={() => {
+                  handleLogout();
+                  setOpenMenu(false);
+                }}
+                className="btn btn-error w-full"
+              >
+                Logout
+              </button>
+            ) : (
               <NavLink
                 to="/login"
                 onClick={() => setOpenMenu(false)}
@@ -219,8 +285,8 @@ const Navbar = () => {
               >
                 Login
               </NavLink>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       )}
     </>

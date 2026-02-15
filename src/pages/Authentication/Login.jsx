@@ -1,8 +1,12 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
-import { FcGoogle } from "react-icons/fc";
+
 import { Link, NavLink } from "react-router-dom";
+import SocalLogin from "./SocalLogin";
+import useAuth from "../../hooks/useAuth";
+import { useNavigate, useLocation } from "react-router-dom";
+import toast, { Toaster } from "react-hot-toast";
 
 const Login = () => {
   const {
@@ -11,10 +15,48 @@ const Login = () => {
     formState: { errors },
   } = useForm();
 
+  const { signIn } = useAuth();
+
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const from = location.state || "/";
+
   const [showPassword, setShowPassword] = useState(false);
 
+  useEffect(() => {
+    // Test toast message to verify setup
+    
+  }, []);
+
   const onSubmit = (data) => {
-    console.log("Login Data:", data);
+    signIn(data.email.trim(), data.password.trim())
+      .then((result) => {
+        console.log(result.user);
+
+        // ✅ success toast
+        // toast.success("Login successful 🎉");
+        toast.success("Login successful", {
+  duration: 2000,
+  style: {
+    background: "#16a34a",
+    color: "#fff",
+    fontWeight: "500",
+  },
+});
+
+
+        // 🔁 একটু delay দিয়ে redirect (better UX)
+        setTimeout(() => {
+          navigate(from, { replace: true });
+        }, 1000);
+      })
+      .catch((error) => {
+        console.log(error.message);
+
+        // ❌ error toast
+        toast.error("Invalid email or password");
+      });
   };
 
   return (
@@ -98,15 +140,7 @@ const Login = () => {
         </div>
 
         {/* Google */}
-        <button
-          className="w-full border border-gray-300 py-3 rounded-lg
-          flex items-center justify-center gap-2 hover:bg-gray-50 transition"
-        >
-          <FcGoogle size={22} />
-          <span className="text-gray-700 font-medium">
-            Continue with Google
-          </span>
-        </button>
+        <SocalLogin></SocalLogin>
 
         <p className="text-center text-sm text-gray-600 mt-6">
           Don’t have an account?

@@ -3,25 +3,34 @@ import { useForm } from "react-hook-form";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
 import { NavLink } from "react-router";
-
+import useAuth from "../../hooks/useAuth";
+import SocalLogin from "./SocalLogin";
 
 const Register = () => {
   const {
     register,
     handleSubmit,
-    watch,
     formState: { errors },
   } = useForm();
 
+  const { creatUser } = useAuth();
+
   const [showPassword, setShowPassword] = useState(false);
-  const [password, setPassword] = useState("");
 
   useEffect(() => {
-    const subscription = watch((value) => setPassword(value.password));
-    return () => subscription.unsubscribe();
-  }, [watch]);
+    // Removed subscription logic as it's not needed with direct watch usage
+    return () => {};
+  }, []);
 
   const onSubmit = (data) => {
+    creatUser(data.email, data.password, data.name)
+      .then((result) => {
+        console.log(result.user);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+
     console.log("Register Data:", data);
   };
 
@@ -87,25 +96,6 @@ const Register = () => {
             </span>
           </div>
 
-          {/* Confirm */}
-          <div>
-            <input
-              type="password"
-              placeholder="Confirm password"
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg
-              text-gray-800 placeholder-gray-400
-              focus:outline-none focus:ring-2 focus:ring-blue-500"
-              {...register("confirmPassword", {
-                validate: (v) => v === password || "Passwords do not match",
-              })}
-            />
-            {errors.confirmPassword && (
-              <p className="text-red-500 text-sm mt-1">
-                {errors.confirmPassword.message}
-              </p>
-            )}
-          </div>
-
           {/* Button */}
           <button
             type="submit"
@@ -124,16 +114,7 @@ const Register = () => {
         </div>
 
         {/* Google */}
-        <button
-          className="w-full border border-gray-300 py-3 rounded-lg
-          flex items-center justify-center gap-2 hover:bg-gray-50 transition"
-        >
-          <FcGoogle size={22} />
-          <span className="text-gray-700 font-medium">
-            Continue with Google
-          </span>
-        </button>
-
+     <SocalLogin></SocalLogin>
         {/* Login link */}
         <p className="text-center text-sm text-gray-600 mt-6">
           Already have an account?{" "}
