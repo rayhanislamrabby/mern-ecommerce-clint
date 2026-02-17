@@ -10,8 +10,9 @@ import PrivateRoute from "../routes/PrivateRoute";
 import DashboardLayout from "../layouts/DashBoardLayout";
 import AddProducts from "../pages/DashBorad/AddProducts/AddProducts";
 
-import AllProducts from "../pages/shop/AllProducts";
 import ProductDetails from "../pages/ProductDetails/ProductDetails";
+import AllProducts from "../pages/shop/AllProducts";
+import CategoryPage from "../pages/CategoryPage/CategoryPage";
 
 export const router = createBrowserRouter([
   {
@@ -25,6 +26,10 @@ export const router = createBrowserRouter([
       {
         path: "allproducts",
         Component: AllProducts,
+      },
+      {
+        path: "/category/:categoryName",
+        element: <CategoryPage></CategoryPage>,
       },
       {
         path: "product/:id",

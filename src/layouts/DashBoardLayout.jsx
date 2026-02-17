@@ -1,5 +1,6 @@
 import React from "react";
 import { NavLink, Outlet } from "react-router-dom";
+
 import {
   LayoutDashboard,
   PlusSquare,
@@ -8,126 +9,182 @@ import {
   Settings,
   Home,
   Menu,
-  ChevronRight
+  LogOut,
+  Layers,
+  ChevronRight,
+  TrendingUp,
 } from "lucide-react";
+import useAuth from "../hooks/useAuth";
 
 const DashboardLayout = () => {
+  const { user, logOut } = useAuth();
+
   const menuLinks = [
     {
-      name: "Dashboard",
+      name: "Analytics",
       path: "/dashboard",
-      icon: <LayoutDashboard size={18} />,
+      icon: <LayoutDashboard size={20} />,
     },
     {
       name: "Add Products",
       path: "/dashboard/addproducts",
-      icon: <PlusSquare size={18} />,
+      icon: <PlusSquare size={20} />,
     },
     {
-      name: "Manage Products",
+      name: "Inventory",
       path: "/dashboard/manage-products",
-      icon: <ShoppingBag size={18} />,
+      icon: <ShoppingBag size={20} />,
     },
-    { name: "Users", path: "/dashboard/users", icon: <Users size={18} /> },
+    { name: "Customers", path: "/dashboard/users", icon: <Users size={20} /> },
     {
       name: "Settings",
       path: "/dashboard/settings",
-      icon: <Settings size={18} />,
+      icon: <Settings size={20} />,
     },
   ];
 
+  const getInitials = (name) => {
+    return name
+      ? name
+          .split(" ")
+          .map((n) => n[0])
+          .join("")
+          .toUpperCase()
+          .slice(0, 2)
+      : "AD";
+  };
+
   return (
-    <div className="drawer lg:drawer-open bg-[#F8FAFC]">
+    <div className="drawer lg:drawer-open bg-[#E3EDF7] font-sans">
       <input id="my-drawer-2" type="checkbox" className="drawer-toggle" />
 
-      {/* Main Content Area */}
+      {/* --- Main Content Area --- */}
       <div className="drawer-content flex flex-col min-h-screen">
-        
-        {/* Top Navbar for Mobile & Tablet */}
-        <div className="navbar bg-white border-b border-gray-100 lg:hidden px-6 sticky top-0 z-30 h-20">
-          <div className="flex-none">
+        {/* Top Navbar - Simplified & Elegant */}
+        <header className="navbar bg-white/90 backdrop-blur-md border-b border-slate-300 px-6 md:px-12 sticky top-0 z-30 h-20">
+          <div className="flex-1">
             <label
               htmlFor="my-drawer-2"
-              className="btn btn-ghost btn-square text-black"
+              className="btn btn-ghost lg:hidden text-slate-900 mr-4"
             >
               <Menu size={24} />
             </label>
+            <h2 className="hidden md:block text-xl font-[1000] text-black tracking-tighter ">
+              Admin{" "}
+              <span className="text-blue-700 opacity-60">/ Management</span>
+            </h2>
           </div>
-          <div className="flex-1 ml-4">
-            <span className="text-xl font-black text-black tracking-tighter">ADMIN PANEL</span>
-          </div>
-        </div>
 
-        {/* Dynamic Content Rendering */}
-        <main className="p-4 md:p-10 lg:p-12">
-            <div className="max-w-7xl mx-auto">
-                <Outlet />
+          <div className="flex items-center">
+            {/* User Profile Section - Prominent & Deep Color */}
+            <div className="flex items-center gap-4 pl-6 border-l-2 border-slate-200">
+              <div className="text-right hidden sm:block leading-tight">
+                <h4 className="text-sm font-[1000] text-slate-900 tracking-tight">
+                  {user?.displayName || "Admin User"}
+                </h4>
+                <p className="text-[11px] text-slate-600 font-bold lowercase italic tracking-wide">
+                  {user?.email?.toLowerCase() || "admin@shopzone.com"}
+                </p>
+              </div>
+              <div className="w-12 h-12 bg-slate-900 rounded-2xl flex items-center justify-center text-white font-black text-sm shadow-2xl border-2 border-white ring-4 ring-indigo-100 overflow-hidden transform hover:scale-105 transition-transform duration-300">
+                {user?.photoURL ? (
+                  <img
+                    src={user.photoURL}
+                    alt="profile"
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  getInitials(user?.displayName)
+                )}
+              </div>
             </div>
+          </div>
+        </header>
+
+        {/* Dynamic Page Content */}
+        <main className="p-6 md:p-12 transition-all">
+          <div className="max-w-7xl mx-auto">
+            <Outlet />
+          </div>
         </main>
       </div>
 
-      {/* Sidebar Section */}
+      {/* --- Deep Aesthetic Sidebar --- */}
       <div className="drawer-side z-40">
         <label htmlFor="my-drawer-2" className="drawer-overlay"></label>
 
-        <div className="w-80 min-h-full bg-white text-black border-r border-gray-100 flex flex-col">
-          
-          {/* Brand Identity */}
-          <div className="p-10">
-            <div className="flex items-center gap-3 group cursor-pointer">
-              <div className="bg-black p-2.5 rounded-2xl group-hover:bg-[#1e40af] transition-all duration-300">
-                <ShoppingBag className="text-white" size={22} />
+        {/* Updated Gradient with Deeper Tones */}
+        <div className="w-80 min-h-full bg-gradient-to-b from-[#b8d9f5] via-[#c6dfff] to-[#e3edf7] border-r border-slate-300 flex flex-col shadow-2xl">
+          {/* Logo Section */}
+          <div className="p-10 mb-2">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 bg-slate-900 rounded-2xl flex items-center justify-center shadow-2xl shadow-blue-200 rotate-3 hover:rotate-0 transition-all duration-500">
+                <Layers className="text-white" size={24} />
               </div>
-              <div>
-                <h1 className="text-2xl font-black tracking-tighter leading-none text-black">
-                  E-SHOP
-                </h1>
-                <p className="text-[9px] font-black text-[#1e40af] uppercase tracking-[0.3em] mt-1">
-                  Control Center
-                </p>
-              </div>
+              <h1 className="text-2xl font-[1000] tracking-tighter text-slate-900 uppercase italic">
+                Socially<span className="text-[#3b49df]">.</span>
+              </h1>
             </div>
           </div>
 
-          {/* Navigation Menu */}
-          <nav className="flex-1 px-6 space-y-2">
-            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-4 mb-4">Main Menu</p>
-            <ul className="space-y-1.5">
-              {menuLinks.map((link, index) => (
-                <li key={index}>
-                  <NavLink
-                    to={link.path}
-                    end={link.path === "/dashboard"}
-                    className={({ isActive }) =>
-                      `flex items-center justify-between px-5 py-4 rounded-2xl transition-all duration-300 font-bold group ${
-                        isActive
-                          ? "bg-[#1e40af] text-white shadow-xl shadow-blue-100"
-                          : "text-gray-500 hover:bg-gray-50 hover:text-black"
-                      }`
-                    }
-                  >
-                    <div className="flex items-center gap-4">
-                        <span className="transition-transform group-hover:scale-110">
-                            {link.icon}
+          {/* Navigation Links */}
+          <nav className="flex-1 px-6 space-y-10">
+       
+
+            <div className="space-y-4">
+              <p className="text-[10px] font-black text-slate-600 uppercase tracking-[0.3em] ml-4 opacity-90">
+                Main Menu
+              </p>
+              <ul className="space-y-2">
+                {menuLinks.map((link, index) => (
+                  <li key={index}>
+                    <NavLink
+                      to={link.path}
+                      end={link.path === "/dashboard"}
+                      className={({ isActive }) =>
+                        `flex items-center justify-between px-6 py-4 rounded-2xl transition-all duration-500 group ${
+                          isActive
+                            ? "bg-white text-[#3b49df] shadow-2xl shadow-blue-300/50 scale-[1.05] border-r-[6px] border-[#3b49df]"
+                            : "text-slate-900 hover:text-[#3b49df] hover:bg-white/50"
+                        }`
+                      }
+                    >
+                      <div className="flex items-center gap-4">
+                        <span className="transition-transform duration-300 group-hover:scale-110">
+                          {link.icon}
                         </span>
-                        <span className="text-[13px] uppercase tracking-wide">{link.name}</span>
-                    </div>
-                    <ChevronRight size={14} className="opacity-0 group-hover:opacity-100 transition-all" />
-                  </NavLink>
-                </li>
-              ))}
-            </ul>
+                        <span className="text-[12px] font-[1000] uppercase tracking-widest italic">
+                          #{link.name.replace(/\s+/g, "")}
+                        </span>
+                      </div>
+                      <ChevronRight
+                        size={14}
+                        className="opacity-0 group-hover:opacity-100 transition-all -translate-x-2 group-hover:translate-x-0"
+                      />
+                    </NavLink>
+                  </li>
+                ))}
+              </ul>
+            </div>
           </nav>
 
-          {/* Footer Navigation */}
-          <div className="p-8 border-t border-gray-50">
+          {/* Sidebar Footer */}
+
+          <div className="p-8 mt-auto border-t border-slate-300 bg-white/10 backdrop-blur-sm">
             <NavLink
               to="/"
-              className="flex items-center gap-4 px-6 py-4 rounded-2xl text-red-500 bg-red-50/50 hover:bg-red-500 hover:text-white transition-all duration-300 font-black text-[12px] uppercase tracking-widest"
+              className="w-full flex items-center justify-center gap-3 px-6 py-4 mt-3 mb-4 rounded-2xl text-slate-900 hover:text-black bg-blue-600 hover:bg-red-400 transition-all duration-500 font-black text-[11px] uppercase tracking-widest shadow-lg border border-slate-200"
             >
-              <Home size={18} />
-              <span>Back to Home</span>
+              <Home size={12} /> Exit Dashboard
             </NavLink>
+
+            <button
+              onClick={() => logOut()}
+              className="w-full flex items-center justify-center gap-3 px-6 py-4 rounded-2xl text-slate-900  bg-rose-500 hover:text-white transition-all duration-500 font-black text-[11px] uppercase tracking-widest shadow-lg border border-slate-200"
+            >
+              <LogOut size={18} />
+              Sign Out
+            </button>
           </div>
         </div>
       </div>
