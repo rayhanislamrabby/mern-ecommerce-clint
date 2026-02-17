@@ -3,7 +3,7 @@
 @import "tailwindcss";
 @plugin "daisyui";
 
-@import "react-hot-toast/dist/index.css";
+
 
 .font-inter {
   font-family: "Inter", sans-serif;

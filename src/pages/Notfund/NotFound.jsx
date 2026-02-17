@@ -1,35 +1,33 @@
+import React from "react";
 import { Link } from "react-router-dom";
+import Lottie from "lottie-react";
+import { Home } from "lucide-react";
+
+import errorAnimation from "../../assets/Not Found 404.json"; 
 
 const NotFound = () => {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
-      <div
-        initial={{ opacity: 0, scale: 0.9 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.4 }}
-        className="text-center bg-white shadow-2xl rounded-2xl p-10 max-w-md w-full"
-      >
-        {/* 404 Number */}
-        <h1 className="text-7xl font-extrabold text-blue-600 mb-4">404</h1>
+    <div className="min-h-screen flex items-center justify-center bg-[#F8FAFC] px-4">
+      <div className="text-center max-w-lg w-full">
+        
+        {/* Lottie Animation - Now using local file */}
+        <div >
+          <Lottie 
+            animationData={errorAnimation} 
+            loop={true} 
+          />
+        </div>
 
-        {/* Title */}
-        <h2 className="text-2xl font-semibold text-gray-800 mb-2">
-          Page Not Found
-        </h2>
-
-        {/* Description */}
-        <p className="text-gray-500 mb-6">
-          Oops! The page you are looking for doesn’t exist or has been moved.
-        </p>
-
-        {/* Button */}
-        <Link
-          to="/"
-          className="inline-block px-6 py-3 bg-blue-600 text-white rounded-lg
-          font-semibold hover:bg-blue-700 transition"
-        >
-          Go Back Home
-        </Link>
+        <div className="relative z-10">
+        
+          <Link
+            to="/"
+            className="inline-flex items-center gap-3 px-10 py-4 bg-indigo-600 text-white text-[11px] font-black uppercase tracking-[0.2em] rounded-2xl hover:bg-black transition-all duration-300 shadow-2xl shadow-indigo-100 active:scale-95 group"
+          >
+            <Home size={16} className="group-hover:-translate-y-0.5 transition-transform" />
+            Go Back Home
+          </Link>
+        </div>
       </div>
     </div>
   );
