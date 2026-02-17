@@ -144,15 +144,44 @@ const ProductDetails = () => {
             <div className="flex gap-6">
               <div className="flex items-center gap-2">
                 <Palette size={14} className="text-indigo-600" />
-                <span className="text-[10px] font-black">
+                <span className="text-[12px] font-black">
                   COLOR: {product.color || "N/A"}
                 </span>
               </div>
               <div className="flex items-center gap-2">
                 <Layers size={14} className="text-indigo-600" />
-                <span className="text-[10px] font-black">
+                <span className="text-[12px] font-black">
                   FABRIC: {product.fabric || "PREMIUM"}
                 </span>
+              </div>
+            </div>
+
+            {/* Specifications Section */}
+            <div className="mt-8 border-t border-slate-100 pt-6">
+              <h3 className="text-[12px] font-black uppercase tracking-widest flex items-center gap-2 mb-4">
+                <Layers size={16} className="text-[#6366F1]" /> Specifications
+              </h3>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Fabric Card */}
+                <div className="bg-slate-50 p-4 rounded-2xl">
+                  <p className="text-[9px] font-black text-slate-600 uppercase tracking-widest mb-1">
+                    Fabric Material
+                  </p>
+                  <p className="text-[11px] font-bold text-black uppercase">
+                    {product?.fabric || "Not Specified"}
+                  </p>
+                </div>
+
+                {/* Wash Care Card */}
+                <div className="bg-slate-50 p-4 rounded-2xl">
+                  <p className="text-[9px] font-black text-slate-600 uppercase tracking-widest mb-1">
+                    Care Instructions
+                  </p>
+                  <p className="text-[11px] font-bold text-black uppercase">
+                    {product?.washCare || "Standard Wash"}
+                  </p>
+                </div>
               </div>
             </div>
 
@@ -243,7 +272,6 @@ const ProductDetails = () => {
               </div>
             </div>
 
-            {/* Authentic Icons - Request অনুযায়ী */}
             <div className="grid grid-cols-2 gap-3 pt-2">
               <div className="flex items-center gap-3 p-3 bg-white border border-zinc-100 rounded-xl shadow-sm">
                 <ShieldCheck size={18} className="text-indigo-600" />

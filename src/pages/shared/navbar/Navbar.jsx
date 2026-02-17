@@ -29,7 +29,7 @@ const NAV_LINKS = [
       { name: "Casual Shirt", path: "/category/Casual Shirt" },
       { name: "T-Shirt", path: "/category/T-Shirt" },
       { name: "Pant / Denim", path: "/category/Pant" },
-        { name: "Blazer", path: "/category/blazer" },
+      { name: "Blazer", path: "/category/blazer" },
     ],
   },
   {

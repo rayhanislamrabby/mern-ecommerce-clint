@@ -13,6 +13,7 @@ import {
   Layers,
   ChevronRight,
   TrendingUp,
+  Boxes,
 } from "lucide-react";
 import useAuth from "../hooks/useAuth";
 
@@ -31,9 +32,10 @@ const DashboardLayout = () => {
       icon: <PlusSquare size={20} />,
     },
     {
-      name: "Inventory",
-      path: "/dashboard/manage-products",
-      icon: <ShoppingBag size={20} />,
+      name: "Update Products",
+      path: "/dashboard/adminproducts",
+
+      icon: <Boxes size={20} strokeWidth={2.5} className="text-indigo-500" />,
     },
     { name: "Customers", path: "/dashboard/users", icon: <Users size={20} /> },
     {
@@ -122,15 +124,13 @@ const DashboardLayout = () => {
                 <Layers className="text-white" size={24} />
               </div>
               <h1 className="text-2xl font-[1000] tracking-tighter text-slate-900 uppercase italic">
-                Socially<span className="text-[#3b49df]">.</span>
+                SHOP<span className="text-[#3b49df]">ZONE.</span>
               </h1>
             </div>
           </div>
 
           {/* Navigation Links */}
           <nav className="flex-1 px-6 space-y-10">
-       
-
             <div className="space-y-4">
               <p className="text-[10px] font-black text-slate-600 uppercase tracking-[0.3em] ml-4 opacity-90">
                 Main Menu

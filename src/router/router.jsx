@@ -13,6 +13,9 @@ import AddProducts from "../pages/DashBorad/AddProducts/AddProducts";
 import ProductDetails from "../pages/ProductDetails/ProductDetails";
 import AllProducts from "../pages/shop/AllProducts";
 import CategoryPage from "../pages/CategoryPage/CategoryPage";
+import AddProduct from "../pages/DashBorad/AddProducts/AddProducts";
+import AdminProducts from "../pages/DashBorad/AdminProducts/AdminProducts";
+import EditProduct from "../pages/DashBorad/EditProduct/EditProduct";
 
 export const router = createBrowserRouter([
   {
@@ -62,6 +65,14 @@ export const router = createBrowserRouter([
       {
         path: "addproducts",
         element: <AddProducts />,
+      },
+      {
+        path: "adminproducts",
+        element: <AdminProducts></AdminProducts>,
+      },
+      {
+        path: "edit-product/:id",
+        element: <EditProduct></EditProduct>,
       },
     ],
   },
