@@ -16,6 +16,7 @@ import CategoryPage from "../pages/CategoryPage/CategoryPage";
 import AddProduct from "../pages/DashBorad/AddProducts/AddProducts";
 import AdminProducts from "../pages/DashBorad/AdminProducts/AdminProducts";
 import EditProduct from "../pages/DashBorad/EditProduct/EditProduct";
+import Checkout from "../pages/checkout/Checkout";
 
 export const router = createBrowserRouter([
   {
@@ -37,6 +38,11 @@ export const router = createBrowserRouter([
       {
         path: "product/:id",
         element: <ProductDetails></ProductDetails>,
+      },
+
+      {
+        path: "/checkout",
+        element: <Checkout></Checkout>,
       },
     ],
   },

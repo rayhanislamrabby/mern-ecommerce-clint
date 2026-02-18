@@ -1,10 +1,11 @@
+
+
 import React, { useState, useEffect, useContext, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import {
   Minus,
   Plus,
-  ArrowRight,
   Palette,
   Layers,
   ShieldCheck,
@@ -13,6 +14,7 @@ import {
   Info,
 } from "lucide-react";
 import Swal from "sweetalert2";
+
 import { CartContext } from "../../context/AuthContext/CartContext/CartProvider";
 import useAxiosSecure from "../../hooks/useAxiosSecures";
 
@@ -26,6 +28,7 @@ const ProductDetails = () => {
   const [selectedSize, setSelectedSize] = useState(null);
   const [isZoomed, setIsZoomed] = useState(false);
 
+  // 1. Fetch Main Product
   const { data: product, isLoading: isProductLoading } = useQuery({
     queryKey: ["product", id],
     queryFn: async () => {
@@ -42,15 +45,20 @@ const ProductDetails = () => {
       return res.data;
     },
     staleTime: 1000 * 60 * 10,
-    enabled: !!product?.category,
+    enabled: !!product?.category, // Category pabar por eita run hobe
   });
 
+  // 3. Filter Related Products logic fix
   const relatedProducts = useMemo(() => {
     if (!product || !allProducts.length) return [];
     return allProducts
-      .filter((item) => item.category === product.category && item._id !== id)
+      .filter(
+        (item) =>
+          item.category?.toLowerCase() === product.category?.toLowerCase() &&
+          item._id !== product._id,
+      )
       .slice(0, 10);
-  }, [allProducts, product, id]);
+  }, [allProducts, product]);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -62,22 +70,31 @@ const ProductDetails = () => {
     if (!selectedSize) {
       Swal.fire({
         icon: "error",
-        title: "Select Size",
+        title: "SELECT SIZE",
         text: "Please choose a size first!",
         confirmButtonColor: "#000",
       });
       return;
     }
-    const cartItem = {
+
+    const itemToProcess = {
       ...product,
       _id: `${product._id}-${selectedSize}`,
       originalId: product._id,
       size: selectedSize,
       quantity: quantity,
     };
-    addToCart(cartItem);
-    if (isBuyNow) navigate("/checkout");
-    else
+
+    if (isBuyNow) {
+      navigate("/checkout", {
+        state: {
+          cartItems: [itemToProcess],
+          total: product.price * quantity,
+          fromBuyNow: true,
+        },
+      });
+    } else {
+      addToCart(itemToProcess);
       Swal.fire({
         position: "top-end",
         icon: "success",
@@ -86,6 +103,7 @@ const ProductDetails = () => {
         timer: 1500,
         toast: true,
       });
+    }
   };
 
   if (isProductLoading)
@@ -101,9 +119,9 @@ const ProductDetails = () => {
         <div className="flex flex-col lg:flex-row gap-10">
           {/* Image Section */}
           <div className="flex-1">
-            <div className="sticky top-24 bg-zinc-50 border border-zinc-100 rounded-2xl overflow-hidden cursor-zoom-in">
+            <div className="sticky top-24 bg-zinc-50 border border-zinc-100 rounded-2xl overflow-hidden">
               <div
-                className="relative aspect-square overflow-hidden"
+                className="relative aspect-square overflow-hidden cursor-zoom-in"
                 onClick={() => setIsZoomed(!isZoomed)}
               >
                 <img
@@ -125,7 +143,7 @@ const ProductDetails = () => {
                 {product.name}
               </h1>
               <p className="text-[9px] font-black text-zinc-700 mt-1 tracking-widest uppercase">
-                SKU: {product.sku}
+                SKU: {product.sku || "N/A"}
               </p>
             </div>
 
@@ -140,7 +158,6 @@ const ProductDetails = () => {
               )}
             </div>
 
-            {/* Color & Fabric Small Icons */}
             <div className="flex gap-6">
               <div className="flex items-center gap-2">
                 <Palette size={14} className="text-indigo-600" />
@@ -156,38 +173,9 @@ const ProductDetails = () => {
               </div>
             </div>
 
-            {/* Specifications Section */}
-            <div className="mt-8 border-t border-slate-100 pt-6">
-              <h3 className="text-[12px] font-black uppercase tracking-widest flex items-center gap-2 mb-4">
-                <Layers size={16} className="text-[#6366F1]" /> Specifications
-              </h3>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* Fabric Card */}
-                <div className="bg-slate-50 p-4 rounded-2xl">
-                  <p className="text-[9px] font-black text-slate-600 uppercase tracking-widest mb-1">
-                    Fabric Material
-                  </p>
-                  <p className="text-[11px] font-bold text-black uppercase">
-                    {product?.fabric || "Not Specified"}
-                  </p>
-                </div>
-
-                {/* Wash Care Card */}
-                <div className="bg-slate-50 p-4 rounded-2xl">
-                  <p className="text-[9px] font-black text-slate-600 uppercase tracking-widest mb-1">
-                    Care Instructions
-                  </p>
-                  <p className="text-[11px] font-bold text-black uppercase">
-                    {product?.washCare || "Standard Wash"}
-                  </p>
-                </div>
-              </div>
-            </div>
-
             {/* Size Selector */}
-            <div className="space-y-3">
-              <h3 className="text-[10px]  tracking-widest text-gray-700 font-extrabold">
+            <div className="space-y-3 pt-4">
+              <h3 className="text-[10px] tracking-widest text-gray-700 font-extrabold uppercase">
                 SELECT SIZE
               </h3>
               <div className="flex flex-wrap gap-2">
@@ -195,7 +183,7 @@ const ProductDetails = () => {
                   <button
                     key={size}
                     onClick={() => setSelectedSize(size)}
-                    className={`w-12 h-12 border-2 text-[11px] font-[1000] transition-all rounded-xl ${selectedSize === size ? "bg-black text-white border-black" : "bg-white text-black border-zinc-200 hover:border-black"}`}
+                    className={`w-12 h-12 border-2 text-[11px] font-[1000] transition-all rounded-xl ${selectedSize === size ? "bg-black text-white border-black shadow-lg" : "bg-white text-black border-zinc-200 hover:border-black"}`}
                   >
                     {size}
                   </button>
@@ -203,43 +191,8 @@ const ProductDetails = () => {
               </div>
             </div>
 
-            {/* Compact Size Table - Just above Buy Buttons */}
-            {product.sizeChart && (
-              <div className="bg-zinc-50 p-4 rounded-2xl border border-zinc-100 max-w-xs">
-                <div className="flex items-center gap-2 mb-2 text-zinc-600">
-                  <Info size={12} />
-                  <span className="text-[9px] font-black tracking-widest">
-                    MEASUREMENTS (INCH)
-                  </span>
-                </div>
-                <table className="w-full text-[10px] font-black">
-                  <thead>
-                    <tr className="border-b border-zinc-200 text-zinc-900">
-                      <th className="pb-1 text-left">SIZE</th>
-                      <th className="pb-1 text-center">CHEST</th>
-                      <th className="pb-1 text-center">LENGTH</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-zinc-100">
-                    {Object.entries(product.sizeChart).map(([size, m]) => (
-                      <tr
-                        key={size}
-                        className={
-                          selectedSize === size ? "text-indigo-600" : ""
-                        }
-                      >
-                        <td className="py-1.5 text-left italic">{size}</td>
-                        <td className="py-1.5 text-center">{m.chest}</td>
-                        <td className="py-1.5 text-center">{m.length}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-
             {/* Actions */}
-            <div className="space-y-4">
+            <div className="space-y-4 pt-6">
               <div className="flex items-center border-2 border-black w-fit rounded-xl overflow-hidden">
                 <button
                   onClick={() => setQuantity((q) => Math.max(1, q - 1))}
@@ -259,102 +212,78 @@ const ProductDetails = () => {
               <div className="flex flex-col sm:flex-row gap-3">
                 <button
                   onClick={() => handleAction(false)}
-                  className="flex-1 bg-white border-2 border-black text-black font-black py-4 rounded-xl hover:bg-black hover:text-white transition-all text-[11px] tracking-widest"
+                  className="flex-1 bg-white border-2 border-black text-black font-black py-4 rounded-xl hover:bg-black hover:text-white transition-all text-[11px] tracking-widest uppercase"
                 >
-                  ADD TO CART
+                  ADD TO BAG
                 </button>
                 <button
                   onClick={() => handleAction(true)}
-                  className="flex-1 bg-black text-white font-black py-4 rounded-xl hover:bg-zinc-800 transition-all text-[11px] tracking-widest"
+                  className="flex-1 bg-black text-white font-black py-4 rounded-xl hover:bg-zinc-800 transition-all text-[11px] tracking-widest border-2 border-black shadow-xl uppercase"
                 >
                   BUY IT NOW
                 </button>
               </div>
             </div>
-
-            <div className="grid grid-cols-2 gap-3 pt-2">
-              <div className="flex items-center gap-3 p-3 bg-white border border-zinc-100 rounded-xl shadow-sm">
-                <ShieldCheck size={18} className="text-indigo-600" />
-                <span className="text-[9px] font-black  tracking-tighter">
-                  100% AUTHENTIC
-                  <br />
-                  GUARANTEED
-                </span>
-              </div>
-              <div className="flex items-center gap-3 p-3 bg-white border border-zinc-100 rounded-xl shadow-sm">
-                <Truck size={18} className="text-indigo-600" />
-                <span className="text-[9px] font-black tracking-tighter">
-                  FASTEST HOME
-                  <br />
-                  DELIVERY
-                </span>
-              </div>
-            </div>
           </div>
         </div>
 
-        {/* Description - Compact niche */}
-        <div className="mt-16 border-t border-zinc-100 pt-10 max-w-4xl">
-          <div className="flex items-center gap-2 mb-4 uppercase">
-            <AlignLeft size={16} />
-            <h2 className="text-sm font-black tracking-widest italic">
-              Description
-            </h2>
-          </div>
-          <p className="text-zinc-800 text-xs font-bold normal-case leading-relaxed">
-            {product.description ||
-              "Premium quality product with comfortable fabric and modern design."}
-          </p>
-        </div>
-
-        {/* Related Products */}
-        <div className="mt-20 border-t border-zinc-100 pt-10">
-          <div className="flex items-center justify-between mb-8">
-            <h2 className="text-xl font-[1000] tracking-tighter italic">
+        {/* --- RELATED PRODUCTS SECTION (Fixed) --- */}
+        <div className="mt-24 border-t border-zinc-100 pt-16">
+          <div className="flex items-center justify-between mb-10">
+            <h2 className="text-2xl font-[1000] tracking-tighter italic uppercase">
               YOU MAY ALSO LIKE
             </h2>
             <button
               onClick={() => navigate("/allproducts")}
-              className="text-[9px] font-black border-b border-black pb-0.5"
+              className="text-[10px] font-black border-b-2 border-black pb-1 hover:text-indigo-600 hover:border-indigo-600 transition-all"
             >
-              VIEW ALL
+              VIEW ALL COLLECTION
             </button>
           </div>
 
           {isRelatedLoading ? (
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-6">
               {[1, 2, 3, 4, 5].map((n) => (
-                <div
-                  key={n}
-                  className="animate-pulse bg-zinc-50 aspect-[3/4] rounded-xl"
-                ></div>
+                <div key={n} className="animate-pulse space-y-4">
+                  <div className="bg-zinc-100 aspect-[3/4] rounded-2xl"></div>
+                  <div className="h-4 bg-zinc-100 w-2/3 mx-auto"></div>
+                </div>
               ))}
             </div>
-          ) : (
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+          ) : relatedProducts.length > 0 ? (
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-6">
               {relatedProducts.map((item) => (
                 <div
                   key={item._id}
                   onClick={() => navigate(`/product/${item._id}`)}
                   className="group cursor-pointer"
                 >
-                  <div className="aspect-[3/4] bg-zinc-50 rounded-xl overflow-hidden mb-3 border border-zinc-100 group-hover:border-zinc-300 transition-all">
+                  <div className="aspect-[3/4] bg-zinc-50 rounded-2xl overflow-hidden mb-4 border border-transparent group-hover:border-zinc-200 transition-all relative">
                     <img
                       src={item.image}
                       alt={item.name}
-                      className="w-full h-full object-contain p-4 group-hover:scale-105 transition-transform"
+                      className="w-full h-full object-contain p-4 group-hover:scale-110 transition-transform duration-500"
                     />
+                    <div className="absolute bottom-0 left-0 w-full p-4 translate-y-full group-hover:translate-y-0 transition-transform">
+                      <div className="bg-black text-white text-[8px] font-black text-center py-2 rounded-lg">
+                        QUICK VIEW
+                      </div>
+                    </div>
                   </div>
-                  <div className="text-center">
-                    <h3 className="text-[10px] font-black line-clamp-1 uppercase">
+                  <div className="text-center space-y-1">
+                    <h3 className="text-[10px] font-black line-clamp-1 uppercase tracking-tight">
                       {item.name}
                     </h3>
-                    <p className="font-black text-sm text-black">
+                    <p className="font-[1000] text-sm text-indigo-600">
                       ৳{item.price}
                     </p>
                   </div>
                 </div>
               ))}
+            </div>
+          ) : (
+            <div className="text-center py-10 text-zinc-400 text-[10px] font-black tracking-widest uppercase">
+              No similar products found in this category.
             </div>
           )}
         </div>

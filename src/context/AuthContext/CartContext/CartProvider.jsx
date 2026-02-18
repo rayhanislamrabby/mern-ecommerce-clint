@@ -1,112 +1,142 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { createContext, useState, useEffect } from "react";
+import { createContext, useState, useEffect, useMemo } from "react";
 import toast from "react-hot-toast";
-import useAxiosSecure from "../../../hooks/useAxiosSecures";
 import useAuth from "../../../hooks/useAuth";
-
-
+import useAxiosSecure from "../../../hooks/useAxiosSecures";
 
 export const CartContext = createContext(null);
 
 const CartProvider = ({ children }) => {
-    const { user } = useAuth();
-    const axiosSecure = useAxiosSecure();
-    const queryClient = useQueryClient();
-    
-    
-    const [localCart, setLocalCart] = useState([]);
+  const { user, loading: authLoading } = useAuth();
+  const axiosSecure = useAxiosSecure();
+  const [localCart, setLocalCart] = useState([]);
 
-    
-    const { data: dbCart = [], refetch } = useQuery({
-        queryKey: ['cart', user?.email],
-        enabled: !!user?.email,
-        queryFn: async () => {
-            const res = await axiosSecure.get(`/carts?email=${user.email}`);
-            return res.data;
-        }
-    });
+  // Fetch from DB
+  const {
+    data: dbCart = [],
+    refetch,
+    isLoading: isDbLoading,
+  } = useQuery({
+    queryKey: ["cart", user?.email],
+    enabled: !!user?.email && !authLoading,
+    queryFn: async () => {
+      const res = await axiosSecure.get(`/carts?email=${user.email}`);
+      return res.data;
+    },
+  });
 
-    useEffect(() => {
-        const storedCart = JSON.parse(localStorage.getItem('cart')) || [];
-        setLocalCart(storedCart);
-    }, []);
+  // Load Local Storage
+  useEffect(() => {
+    const storedCart = JSON.parse(localStorage.getItem("cart")) || [];
+    setLocalCart(storedCart);
+  }, []);
 
-  
-    const addToCart = (product) => {
-        if (user?.email) {
-       
-            dbAddToCart(product);
-        } else {
-         
-            const existingCart = JSON.parse(localStorage.getItem('cart')) || [];
-          
-            const isExist = existingCart.find(item => item._id === product._id);
-            
-            let newCart;
-            if (isExist) {
-                newCart = existingCart.map(item => 
-                    item._id === product._id ? { ...item, quantity: item.quantity + (product.quantity || 1) } : item
-                );
-            } else {
-                newCart = [...existingCart, { ...product, quantity: product.quantity || 1 }];
-            }
-            
-            localStorage.setItem('cart', JSON.stringify(newCart));
-            setLocalCart(newCart); 
-          
-        }
-    };
+  // FIXED: Logic for 'cart' data
+  const cart = useMemo(() => {
+    // Jodi login thake kintu DB theke data asche (loading),
+    // tokhon empty array na pathie loading flag-er upore depend kora uchit.
+    if (user?.email) {
+      return dbCart;
+    }
+    return localCart;
+  }, [user?.email, dbCart, localCart]);
 
+  // Combined Loading State
+  const cartLoading = authLoading || (!!user?.email && isDbLoading);
 
-    const { mutate: dbAddToCart } = useMutation({
-        mutationFn: async (product) => {
-            const cartItem = {
-                productId: product.originalId || product._id, 
-                name: product.name,
-                price: product.price,
-                image: product.image,
-                size: product.size,
-                email: user.email,
-                quantity: product.quantity || 1
-            };
-            const res = await axiosSecure.post('/carts', cartItem);
-            return res.data;
-        },
-        onSuccess: () => {
-            refetch();
-           
-        }
-    });
+  // --- ACTIONS ---
 
-  
-    const removeFromCart = (id) => {
-        if (user?.email) {
-            dbRemoveFromCart(id);
-        } else {
-            const currentCart = JSON.parse(localStorage.getItem('cart')) || [];
-            const updatedCart = currentCart.filter(item => item._id !== id);
-            localStorage.setItem('cart', JSON.stringify(updatedCart));
-            setLocalCart(updatedCart);
-            toast.success("Removed from local storage");
-        }
-    };
+  const { mutate: dbAddToCart } = useMutation({
+    mutationFn: async (product) => {
+      const cartItem = {
+        productId: product._id,
+        name: product.name,
+        price: product.price,
+        image: product.image,
+        email: user.email,
+        quantity: product.quantity || 1,
+      };
+      const res = await axiosSecure.post("/carts", cartItem);
+      return res.data;
+    },
+    onSuccess: () => {
+      refetch();
+      toast.success("Added to database cart");
+    },
+  });
 
-    const { mutate: dbRemoveFromCart } = useMutation({
-        mutationFn: async (id) => {
-            const res = await axiosSecure.delete(`/carts/${id}`);
-            return res.data;
-        },
-        onSuccess: () => refetch()
-    });
+  const addToCart = (product) => {
+    if (user?.email) {
+      dbAddToCart(product);
+    } else {
+      const existingCart = JSON.parse(localStorage.getItem("cart")) || [];
+      const isExist = existingCart.find((item) => item._id === product._id);
+      let newCart;
+      if (isExist) {
+        newCart = existingCart.map((item) =>
+          item._id === product._id
+            ? { ...item, quantity: item.quantity + (product.quantity || 1) }
+            : item,
+        );
+      } else {
+        newCart = [
+          ...existingCart,
+          { ...product, quantity: product.quantity || 1 },
+        ];
+      }
+      localStorage.setItem("cart", JSON.stringify(newCart));
+      setLocalCart(newCart);
+      toast.success("Added to local cart");
+    }
+  };
 
+  const { mutate: dbRemoveFromCart } = useMutation({
+    mutationFn: async (id) => {
+      const resDel = await axiosSecure.delete(`/carts/${id}`);
+      return resDel.data;
+    },
+    onSuccess: () => {
+      refetch();
+      toast.success("Removed from cart");
+    },
+  });
 
-    const finalCart = user?.email ? dbCart : localCart;
+  const removeFromCart = (id) => {
+    if (user?.email) {
+      // Database-er khetre checkout page theke id ashle ta match korbe
+      dbRemoveFromCart(id);
+    } else {
+      const updatedCart = localCart.filter((item) => item._id !== id);
+      localStorage.setItem("cart", JSON.stringify(updatedCart));
+      setLocalCart(updatedCart);
+      toast.success("Removed from local storage");
+    }
+  };
 
-    return (
-        <CartContext.Provider value={{ cart: finalCart, addToCart, removeFromCart, refetch }}>
-            {children}
-        </CartContext.Provider>
-    );
+  const clearCart = async () => {
+    if (user?.email) {
+      await axiosSecure.delete(`/carts/clear?email=${user.email}`);
+      refetch();
+    } else {
+      localStorage.removeItem("cart");
+      setLocalCart([]);
+    }
+  };
+
+  return (
+    <CartContext.Provider
+      value={{
+        cart,
+        addToCart,
+        removeFromCart,
+        clearCart,
+        refetch,
+        isLoading: cartLoading, // Navbar & Checkout page-e eta use korben
+      }}
+    >
+      {children}
+    </CartContext.Provider>
+  );
 };
 
 export default CartProvider;

@@ -38,7 +38,7 @@ const TopProducts = () => {
     );
 
     return (
-        <div className="bg-white py-12 sm:py-20 font-sans uppercase">
+        <div className="bg-white py-10 sm:py-10 font-sans uppercase">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 
                 {/* Section Header */}
@@ -101,14 +101,7 @@ const TopProducts = () => {
                     ))}
                 </div>
 
-                <div className="mt-16 text-center">
-                    <button 
-                        onClick={() => navigate('/allproducts')}
-                        className="px-10 py-4 border-2 border-black text-black text-[11px] font-black uppercase tracking-[0.2em] hover:bg-black hover:text-white transition-all rounded-full"
-                    >
-                        View All Collection
-                    </button>
-                </div>
+               
 
 
 
