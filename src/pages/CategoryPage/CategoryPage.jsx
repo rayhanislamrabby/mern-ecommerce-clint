@@ -69,7 +69,7 @@ const CategoryPage = () => {
                     </h1>
                     <div className="h-1.5 w-16 bg-black mt-5 mb-8"></div>
 
-                    {/* --- Blue Price Filter Section --- */}
+                    {/* ---Price Filter Section --- */}
                     <div className={`flex items-center gap-3 px-6 py-2.5 rounded-full border transition-all duration-300 ${
                         priceRange !== "All" 
                         ? "bg-blue-50 border-blue-500 shadow-sm" 

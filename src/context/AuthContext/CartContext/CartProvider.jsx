@@ -33,8 +33,6 @@ const CartProvider = ({ children }) => {
 
   // FIXED: Logic for 'cart' data
   const cart = useMemo(() => {
-    // Jodi login thake kintu DB theke data asche (loading),
-    // tokhon empty array na pathie loading flag-er upore depend kora uchit.
     if (user?.email) {
       return dbCart;
     }
@@ -103,7 +101,6 @@ const CartProvider = ({ children }) => {
 
   const removeFromCart = (id) => {
     if (user?.email) {
-      // Database-er khetre checkout page theke id ashle ta match korbe
       dbRemoveFromCart(id);
     } else {
       const updatedCart = localCart.filter((item) => item._id !== id);
@@ -131,7 +128,7 @@ const CartProvider = ({ children }) => {
         removeFromCart,
         clearCart,
         refetch,
-        isLoading: cartLoading, // Navbar & Checkout page-e eta use korben
+        isLoading: cartLoading,
       }}
     >
       {children}

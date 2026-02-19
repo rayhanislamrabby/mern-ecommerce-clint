@@ -16,7 +16,7 @@ const HomeSlider = () => {
         }
     });
 
-    // 1. Grouping Logic: trim() ebong lowerCase() use kora hoyeche safety-r jonno
+
     const groupedProducts = {
         "Polo Shirt": products.filter(p => p.category?.toLowerCase().trim() === "polo shirt"),
         "Panjabi": products.filter(p => p.category?.toLowerCase().trim() === "panjabi"),
@@ -30,7 +30,7 @@ const HomeSlider = () => {
         return () => clearInterval(interval);
     }, []);
 
-    // 2. Categories mapping array: ekhane 'name' ta database-er category name-er sathe milte hobe
+   
     const categories = [
         { title: "Polo Shirts", name: "Polo Shirt" }, 
         { title: "Panjabis", name: "Panjabi" },
@@ -43,10 +43,9 @@ const HomeSlider = () => {
         <div className="max-w-7xl mx-auto px-4 py-16">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {categories.map((cat) => {
-                    // 3. Logic: Grouped object theke specific list ta ber kora
+               
                     const categoryItems = groupedProducts[cat.name] || [];
                     
-                    // 4. Image rotate logic
                     const currentImg = categoryItems.length > 0 
                         ? categoryItems[imageIndex % categoryItems.length].image 
                         : "https://images.unsplash.com/photo-1551488831-00ddcb6c6bd3?q=80&w=800";
@@ -58,7 +57,7 @@ const HomeSlider = () => {
                             className="group relative cursor-pointer overflow-hidden aspect-[3/4.5] bg-zinc-100 rounded-sm"
                         >
                             <img 
-                                key={currentImg} // image change hole animation trigger hobe
+                                key={currentImg} 
                                 src={currentImg} 
                                 alt={cat.title}
                                 className="w-full h-full object-cover transition-all duration-[2000ms] ease-in-out group-hover:scale-110"

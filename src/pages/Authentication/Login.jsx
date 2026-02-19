@@ -7,7 +7,7 @@ import { Link, NavLink, useNavigate, useLocation } from "react-router-dom";
 import SocalLogin from "./SocalLogin";
 import useAuth from "../../hooks/useAuth";
 import toast from "react-hot-toast";
-import { motion } from "framer-motion"; // Animation এর জন্য
+import { motion } from "framer-motion"; 
 
 const Login = () => {
   const { register, handleSubmit, formState: { errors } } = useForm();

@@ -1,5 +1,3 @@
-
-
 import React, { useState, useEffect, useContext, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -45,10 +43,9 @@ const ProductDetails = () => {
       return res.data;
     },
     staleTime: 1000 * 60 * 10,
-    enabled: !!product?.category, // Category pabar por eita run hobe
+    enabled: !!product?.category,
   });
 
-  // 3. Filter Related Products logic fix
   const relatedProducts = useMemo(() => {
     if (!product || !allProducts.length) return [];
     return allProducts

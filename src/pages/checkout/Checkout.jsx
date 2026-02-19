@@ -1,8 +1,328 @@
+// import React, { useState, useEffect, useContext } from "react";
+// import { useForm } from "react-hook-form";
+// import { useLocation, useNavigate } from "react-router-dom";
+// import { toast, Toaster } from "react-hot-toast";
+// import Swal from "sweetalert2";
+// import { CartContext } from "../../context/AuthContext/CartContext/CartProvider";
+// import {
+//   CreditCard,
+//   Truck,
+//   ArrowLeft,
+//   Plus,
+//   Minus,
+//   ShieldCheck,
+// } from "lucide-react";
+// import useAxiosSecure from "../../hooks/useAxiosSecures";
+// import { districts } from "./Districts";
+
+// const Checkout = () => {
+//   const axiosSecure = useAxiosSecure();
+//   const navigate = useNavigate();
+//   const location = useLocation();
+
+//   const { cart, clearCart, isLoading } = useContext(CartContext);
+
+//   const [items, setItems] = useState([]);
+//   const [discount, setDiscount] = useState(0);
+//   const [coupon, setCoupon] = useState("");
+//   const [paymentMethod, setPaymentMethod] = useState("cashondelivery");
+
+//   const isBuyNow = !!location.state?.buyNow;
+
+//   const { register, handleSubmit, watch } = useForm({
+//     defaultValues: { district: "Dhaka" },
+//   });
+
+//   useEffect(() => {
+//     if (!isLoading) {
+//       const data = location.state?.cartItems || cart;
+//       if (data?.length) setItems(data);
+//       else navigate("/");
+//     }
+//   }, [isLoading, cart, location.state, navigate]);
+
+//   // quantity change
+//   const updateQty = (id, type) => {
+//     setItems((prev) =>
+//       prev.map((item) => {
+//         if (item._id === id) {
+//           const qty = item.quantity || 1;
+//           const newQty = type === "inc" ? qty + 1 : qty - 1;
+//           return { ...item, quantity: newQty > 0 ? newQty : 1 };
+//         }
+//         return item;
+//       }),
+//     );
+//   };
+
+//   // ===== PRICE =====
+//   const subtotal = items.reduce((a, i) => a + i.price * (i.quantity || 1), 0);
+//   const shipping = watch("district") === "Dhaka" ? 80 : 120;
+//   const total = subtotal - discount + shipping;
+
+//   // ===== APPLY COUPON =====
+//   const applyCoupon = async () => {
+//     try {
+//       // 1. Check if coupon is valid
+//       const res = await axiosSecure.get(
+//         `/coupons/${coupon}?amount=${subtotal}`,
+//       );
+
+//       // 2. Logic: If valid, increment the usedCount in Database
+//       // Eta apply hobar sathe sathe count bariye dibe
+//       await axiosSecure.patch(`/coupons/update-count/${coupon}`);
+
+//       // 3. Calculate discount
+//       const d =
+//         res.data.discountType === "fixed"
+//           ? res.data.discountValue
+//           : (subtotal * res.data.discountValue) / 100;
+
+//       setDiscount(d);
+//       toast.success("Coupon Applied & Count Updated! 🎫");
+//     } catch (err) {
+//       setDiscount(0);
+//       toast.error(err.response?.data?.message || "Invalid Coupon");
+//     }
+//   };
+
+//   const onSubmit = async (formData) => {
+//     const isBuyNow = !!location.state?.buyNow;
+
+//     const cartIdsForBackend = isBuyNow ? [] : items.map((i) => i._id);
+
+//     const orderData = {
+//       ...formData,
+//       items,
+//       subtotal,
+//       shippingFee: shipping,
+//       discount,
+//       totalAmount: total,
+//       paymentMethod,
+//       orderDate: new Date(),
+//       cartIds: cartIdsForBackend,
+//       isBuyNow: isBuyNow,
+//     };
+
+//     try {
+//       if (paymentMethod === "cashondelivery") {
+//         const result = await Swal.fire({
+//           title: "Confirm Your Order?",
+//           text: `You have to pay ৳${total} on delivery.`,
+//           icon: "info",
+//           showCancelButton: true,
+//           confirmButtonColor: "#000",
+//           cancelButtonColor: "#d33",
+//           confirmButtonText: "Confirm",
+//         });
+
+//         if (result.isConfirmed) {
+//           const res = await axiosSecure.post("/orders", {
+//             ...orderData,
+//             paymentStatus: "unpaid",
+//             transactionId: null,
+//           });
+
+//           if (res.data?.insertedId) {
+//             if (!isBuyNow) {
+//               clearCart();
+//             }
+
+//             Swal.fire("Success!", "Your order is placed.", "success");
+//             navigate("/");
+//           }
+//         }
+//         return;
+//       }
+
+//       const { data } = await axiosSecure.post("/create-payment-intent", {
+//         price: total,
+//       });
+//       if (data?.clientSecret) {
+//         navigate("/payments", {
+//           state: { orderInfo: orderData, clientSecret: data.clientSecret },
+//         });
+//       }
+//     } catch (err) {
+//       console.error("Submit Error:", err);
+
+//       toast.error(
+//         err.response?.data?.message || "Order Failed! Server error 500.",
+//       );
+//     }
+//   };
+
+//   if (isLoading)
+//     return (
+//       <div className="h-screen flex items-center justify-center">
+//         Loading...
+//       </div>
+//     );
+
+//   return (
+//     <div className="min-h-screen bg-white py-12 px-4 text-black">
+//       <Toaster />
+//       <form
+//         onSubmit={handleSubmit(onSubmit)}
+//         className="max-w-6xl mx-auto flex flex-col lg:flex-row gap-12"
+//       >
+//         {/* LEFT FORM */}
+//         <div className="flex-1 space-y-6">
+//           <button
+//             type="button"
+//             onClick={() => navigate(-1)}
+//             className="flex items-center gap-2 text-blue-600"
+//           >
+//             <ArrowLeft size={16} /> Back
+//           </button>
+//           <h2 className="text-3xl font-bold">Shipping Information</h2>
+//           <div className="grid md:grid-cols-2 gap-4">
+//             {["name", "phone", "email", "thana", "zip"].map((f) => (
+//               <input
+//                 key={f}
+//                 {...register(f, { required: true })}
+//                 placeholder={f}
+//                 className="border border-black px-3 py-2 text-sm text-black w-full"
+//               />
+//             ))}
+//             <select
+//               {...register("district")}
+//               className="border border-black px-3 py-2 text-sm text-black w-full"
+//             >
+//               {districts.map((d) => (
+//                 <option key={d}>{d}</option>
+//               ))}
+//             </select>
+//             <textarea
+//               {...register("address", { required: true })}
+//               placeholder="Full Address"
+//               className="border border-black px-3 py-2 text-sm text-black w-full h-24 md:col-span-2"
+//             />
+//           </div>
+//         </div>
+
+//         {/* RIGHT SUMMARY */}
+//         <div className="w-full lg:w-[420px] border-2 border-black p-6 space-y-4 bg-white shadow-[5px_5px_0px_#000]">
+//           <h2 className="text-xl font-bold uppercase">Order Summary</h2>
+//           <div className="space-y-5 max-h-[320px] overflow-y-auto pr-2">
+//             {items.map((item) => (
+//               <div
+//                 key={item._id}
+//                 className="flex items-center gap-4 border-b pb-4"
+//               >
+//                 <img
+//                   src={item.image}
+//                   alt={item.name}
+//                   className="w-16 h-20 object-cover border rounded-md"
+//                 />
+//                 <div className="flex-1">
+//                   <h4 className="text-sm font-semibold text-black truncate w-40">
+//                     {item.name}
+//                   </h4>
+//                   <p className="text-blue-600 font-bold text-sm">
+//                     ৳{item.price}
+//                   </p>
+//                   <div className="flex items-center gap-3 mt-2">
+//                     <button
+//                       type="button"
+//                       onClick={() => updateQty(item._id, "dec")}
+//                       className="border px-2 py-1 rounded hover:bg-gray-100"
+//                     >
+//                       <Minus size={14} />
+//                     </button>
+//                     <span className="font-medium text-black">
+//                       {item.quantity || 1}
+//                     </span>
+//                     <button
+//                       type="button"
+//                       onClick={() => updateQty(item._id, "inc")}
+//                       className="border px-2 py-1 rounded hover:bg-gray-100"
+//                     >
+//                       <Plus size={14} />
+//                     </button>
+//                   </div>
+//                 </div>
+//                 <div className="text-right">
+//                   <p className="text-sm font-bold text-black">
+//                     ৳{item.price * (item.quantity || 1)}
+//                   </p>
+//                 </div>
+//               </div>
+//             ))}
+//           </div>
+
+//           <div className="flex gap-2 pt-2">
+//             <input
+//               value={coupon}
+//               onChange={(e) => setCoupon(e.target.value)}
+//               placeholder="Coupon code"
+//               className="border border-black px-2 py-1 w-full text-black"
+//             />
+//             <button
+//               type="button"
+//               onClick={applyCoupon}
+//               className="bg-blue-600 text-white px-3 text-xs font-bold uppercase"
+//             >
+//               Apply
+//             </button>
+//           </div>
+
+//           <div className="space-y-1 text-sm border-t border-black pt-4">
+//             <p className="flex justify-between">
+//               Subtotal: <span>৳{subtotal}</span>
+//             </p>
+//             <p className="flex justify-between">
+//               Delivery: <span>৳{shipping}</span>
+//             </p>
+//             {discount > 0 && (
+//               <p className="text-green-600 flex justify-between">
+//                 Discount: <span>-৳{discount}</span>
+//               </p>
+//             )}
+//             <p className="text-lg font-bold flex justify-between border-t border-black pt-2 uppercase">
+//               Total: <span>৳{total}</span>
+//             </p>
+//           </div>
+
+//           <div className="grid grid-cols-2 gap-2 mt-4">
+//             <button
+//               type="button"
+//               onClick={() => setPaymentMethod("cashondelivery")}
+//               className={`border p-3 flex flex-col items-center gap-1 ${paymentMethod === "cashondelivery" ? "bg-black text-white" : ""}`}
+//             >
+//               <Truck size={20} />{" "}
+//               <span className="text-[10px] font-bold">CASH ON DELIVERY</span>
+//             </button>
+//             <button
+//               type="button"
+//               onClick={() => setPaymentMethod("card")}
+//               className={`border p-3 flex flex-col items-center gap-1 ${paymentMethod === "card" ? "bg-black text-white" : ""}`}
+//             >
+//               <CreditCard size={20} />{" "}
+//               <span className="text-[10px] font-bold">CARD PAYMENT</span>
+//             </button>
+//           </div>
+
+//           <button
+//             type="submit"
+//             className="w-full py-4 bg-black text-white flex items-center justify-center gap-2 font-bold uppercase tracking-widest hover:bg-gray-800 transition-all"
+//           >
+//             {paymentMethod === "card" ? "Proceed to Payment" : "Confirm Order"}
+//             <ShieldCheck size={18} />
+//           </button>
+//         </div>
+//       </form>
+//     </div>
+//   );
+// };
+
+// export default Checkout;
+
+
+
 import React, { useState, useEffect, useContext } from "react";
 import { useForm } from "react-hook-form";
 import { useLocation, useNavigate } from "react-router-dom";
-import useAxiosSecure from "../../hooks/useAxiosSecures";
-import { districts } from "./Districts";
 import { toast, Toaster } from "react-hot-toast";
 import Swal from "sweetalert2";
 import { CartContext } from "../../context/AuthContext/CartContext/CartProvider";
@@ -13,333 +333,313 @@ import {
   Plus,
   Minus,
   ShieldCheck,
-  MapPin,
 } from "lucide-react";
+import useAxiosSecure from "../../hooks/useAxiosSecures";
+import { districts } from "./Districts";
 
 const Checkout = () => {
   const axiosSecure = useAxiosSecure();
   const navigate = useNavigate();
   const location = useLocation();
-  const {
-    cart,
-    clearCart,
-    isLoading: contextLoading,
-  } = useContext(CartContext);
 
-  const [checkoutItems, setCheckoutItems] = useState([]);
-  const [couponCode, setCouponCode] = useState("");
+  const { cart, clearCart, isLoading } = useContext(CartContext);
+
+  const [items, setItems] = useState([]);
   const [discount, setDiscount] = useState(0);
+  const [coupon, setCoupon] = useState("");
   const [paymentMethod, setPaymentMethod] = useState("cashondelivery");
+  const [isCouponApplied, setIsCouponApplied] = useState(false); // ✅ Button disable state
+
+  // ✅ Buy Now detect (single source of truth)
+  const isBuyNow = !!location.state?.buyNow;
 
   const { register, handleSubmit, watch } = useForm({
     defaultValues: { district: "Dhaka" },
   });
 
+  // load cart অথবা buy now
   useEffect(() => {
-    if (!contextLoading) {
-      const items = location.state?.cartItems || cart;
-      if (items && items.length > 0) {
-        setCheckoutItems(items);
-      } else {
-        navigate("/");
-      }
+    if (!isLoading) {
+      const data = location.state?.cartItems || cart;
+      if (data?.length) setItems(data);
+      else navigate("/");
     }
-  }, [contextLoading, cart, location.state, navigate]);
+  }, [isLoading, cart, location.state, navigate]);
 
-  const cartTotal = checkoutItems.reduce(
-    (acc, item) => acc + item.price * (item.quantity || 1),
-    0,
-  );
-  const selectedDistrict = watch("district");
-  const deliveryCharge = selectedDistrict === "Dhaka" ? 80 : 120;
-  const grandTotal = cartTotal - discount + deliveryCharge;
+  // quantity change
+  const updateQty = (id, type) => {
+    setItems((prev) =>
+      prev.map((item) => {
+        if (item._id === id) {
+          const qty = item.quantity || 1;
+          const newQty = type === "inc" ? qty + 1 : qty - 1;
+          return { ...item, quantity: newQty > 0 ? newQty : 1 };
+        }
+        return item;
+      }),
+    );
+  };
 
-  // --- COUPON LOGIC (WORKABLE) ---
-  const handleApplyCoupon = async () => {
-    if (!couponCode) return toast.error("PLEASE ENTER A CODE");
+  // ===== PRICE =====
+  const subtotal = items.reduce((a, i) => a + i.price * (i.quantity || 1), 0);
+  const shipping = watch("district") === "Dhaka" ? 80 : 120;
+  const total = subtotal - discount + shipping;
+
+  // ===== APPLY COUPON =====
+  const applyCoupon = async () => {
+    if (!coupon) return toast.error("Please enter a coupon code");
+    if (isCouponApplied) return;
+
     try {
-      const res = await axiosSecure.get(`/coupons/${couponCode.toUpperCase()}`);
-      if (res.data) {
-        const amount = (cartTotal * res.data.percentage) / 100;
-        setDiscount(amount);
-        toast.success(`${res.data.percentage}% DISCOUNT APPLIED`);
-      }
+      const res = await axiosSecure.get(`/coupons/${coupon}?amount=${subtotal}`);
+
+      // usedCount update করা
+      await axiosSecure.patch(`/coupons/update-count/${coupon}`);
+
+      const d =
+        res.data.discountType === "fixed"
+          ? res.data.discountValue
+          : (subtotal * res.data.discountValue) / 100;
+
+      setDiscount(d);
+      setIsCouponApplied(true); // ✅ Success hole বাটন ডিসেবল হবে
+      toast.success("Coupon Applied & Count Updated! 🎫");
     } catch (err) {
       setDiscount(0);
-      toast.error("INVALID OR EXPIRED COUPON");
+      setIsCouponApplied(false);
+      toast.error(err.response?.data?.message || "Invalid Coupon");
     }
   };
 
-  const updateQty = (id, type) => {
-    const updated = checkoutItems.map((item) => {
-      if (item._id === id) {
-        const newQty =
-          type === "inc" ? (item.quantity || 1) + 1 : (item.quantity || 1) - 1;
-        return { ...item, quantity: newQty > 0 ? newQty : 1 };
-      }
-      return item;
-    });
-    setCheckoutItems(updated);
-  };
+  // ===== ORDER SUBMIT =====
+  const onSubmit = async (formData) => {
+    const cartIdsForBackend = isBuyNow ? [] : items.map((i) => i._id);
 
-  const onOrderSubmit = async (formData) => {
+    const orderData = {
+      ...formData,
+      items,
+      subtotal,
+      shippingFee: shipping,
+      discount,
+      couponCode: isCouponApplied ? coupon : null, // ✅ কুপন সেভ রাখা
+      totalAmount: total,
+      paymentMethod,
+      orderDate: new Date(),
+      cartIds: cartIdsForBackend,
+      isBuyNow,
+    };
+
     try {
-      const orderData = {
-        ...formData,
-        items: checkoutItems,
-        subtotal: cartTotal,
-        discount,
-        shippingFee: deliveryCharge,
-        totalAmount: grandTotal,
-        paymentMethod,
-        status: "pending",
-        orderDate: new Date(),
-      };
-
+      // ================= COD =================
       if (paymentMethod === "cashondelivery") {
-        const res = await axiosSecure.post("/orders", orderData);
-        if (res.data.insertedId) {
-          if (!location.state?.fromBuyNow) clearCart();
-          Swal.fire({
-            title: "SUCCESS",
-            text: "ORDER PLACED!",
-            icon: "success",
-            confirmButtonColor: "#000",
-          });
+        const result = await Swal.fire({
+          title: "Confirm Your Order?",
+          text: `You have to pay ৳${total} on delivery.`,
+          icon: "info",
+          showCancelButton: true,
+          confirmButtonColor: "#000",
+          cancelButtonColor: "#d33",
+          confirmButtonText: "Confirm",
+        });
+
+        if (!result.isConfirmed) return;
+
+        const res = await axiosSecure.post("/orders", {
+          ...orderData,
+          paymentStatus: "unpaid",
+          transactionId: null,
+        });
+
+        if (res.data?.insertedId) {
+          if (!isBuyNow) {
+            await clearCart();
+          }
+          Swal.fire("Success!", "Your order is placed.", "success");
           navigate("/");
         }
-      } else {
-        // --- STRIPE REDIRECT ---
-        navigate("/payment/stripe", {
-          state: {
-            orderInfo: orderData,
-            fromBuyNow: location.state?.fromBuyNow,
-          },
+        return;
+      }
+
+      // ================= CARD PAYMENT =================
+      const { data } = await axiosSecure.post("/create-payment-intent", {
+        price: total,
+      });
+
+      if (data?.clientSecret) {
+        navigate("/payments", {
+          state: { orderInfo: orderData, clientSecret: data.clientSecret },
         });
       }
     } catch (err) {
-      toast.error("ORDER PROCESSING FAILED");
+      console.error("Submit Error:", err);
+      toast.error(err.response?.data?.message || "Order Failed! Server error 500.");
     }
   };
 
-  if (contextLoading)
+  if (isLoading)
     return (
-      <div className="h-screen flex items-center justify-center font-bold tracking-widest uppercase">
-        Initializing Checkout...
+      <div className="h-screen flex items-center justify-center">
+        Loading...
       </div>
     );
 
   return (
-    <div className="min-h-screen bg-white py-6 md:py-12 px-4 font-sans text-black uppercase tracking-tighter">
-      <Toaster position="top-center" />
+    <div className="min-h-screen bg-white py-12 px-4 text-black">
+      <Toaster />
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        className="max-w-6xl mx-auto flex flex-col lg:flex-row gap-12"
+      >
+        {/* LEFT FORM */}
+        <div className="flex-1 space-y-6">
+          <button
+            type="button"
+            onClick={() => navigate(-1)}
+            className="flex items-center gap-2 text-blue-600 font-bold"
+          >
+            <ArrowLeft size={16} /> Back
+          </button>
+          <h2 className="text-3xl font-bold uppercase tracking-tight">Shipping Information</h2>
 
-      <div className="max-w-6xl mx-auto border border-zinc-300">
-        <form
-          onSubmit={handleSubmit(onOrderSubmit)}
-          className="flex flex-col lg:flex-row"
-        >
-          {/* LEFT: SHIPPING */}
-          <div className="flex-1 p-6 md:p-10 border-b lg:border-b-0 lg:border-r border-zinc-300">
+          <div className="grid md:grid-cols-2 gap-4">
+            {["name", "phone", "email", "thana", "zip"].map((f) => (
+              <input
+                key={f}
+                {...register(f, { required: true })}
+                placeholder={f.charAt(0).toUpperCase() + f.slice(1)}
+                className="border-2 border-black px-3 py-3 text-sm text-black w-full outline-none focus:bg-gray-50"
+              />
+            ))}
+
+            <select
+              {...register("district")}
+              className="border-2 border-black px-3 py-3 text-sm text-black w-full outline-none"
+            >
+              {districts.map((d) => (
+                <option key={d}>{d}</option>
+              ))}
+            </select>
+
+            <textarea
+              {...register("address", { required: true })}
+              placeholder="Full Address (House, Road, Area)"
+              className="border-2 border-black px-3 py-3 text-sm text-black w-full h-24 md:col-span-2 outline-none"
+            />
+          </div>
+        </div>
+
+        {/* RIGHT SUMMARY */}
+        <div className="w-full lg:w-[420px] border-[3px] border-black p-6 space-y-4 bg-white shadow-[8px_8px_0px_#000]">
+          <h2 className="text-xl font-black uppercase italic tracking-tighter border-b-2 border-black pb-2">Order Summary</h2>
+
+          <div className="space-y-5 max-h-[320px] overflow-y-auto pr-2 custom-scrollbar">
+            {items.map((item) => (
+              <div key={item._id} className="flex items-center gap-4 border-b border-gray-100 pb-4">
+                <img
+                  src={item.image}
+                  alt={item.name}
+                  className="w-16 h-20 object-cover border-2 border-black rounded-sm shadow-[3px_3px_0px_#ccc]"
+                />
+
+                <div className="flex-1">
+                  <h4 className="text-sm font-bold text-black truncate w-40">
+                    {item.name}
+                  </h4>
+                  <p className="text-blue-600 font-black text-sm">৳{item.price}</p>
+
+                  <div className="flex items-center gap-3 mt-2">
+                    <button
+                      type="button"
+                      onClick={() => updateQty(item._id, "dec")}
+                      className="border-2 border-black px-2 py-0.5 hover:bg-black hover:text-white transition-all"
+                    >
+                      <Minus size={12} strokeWidth={3} />
+                    </button>
+                    <span className="font-bold text-black text-sm">{item.quantity || 1}</span>
+                    <button
+                      type="button"
+                      onClick={() => updateQty(item._id, "inc")}
+                      className="border-2 border-black px-2 py-0.5 hover:bg-black hover:text-white transition-all"
+                    >
+                      <Plus size={12} strokeWidth={3} />
+                    </button>
+                  </div>
+                </div>
+
+                <div className="text-right font-black">
+                  <p className="text-sm">৳{item.price * (item.quantity || 1)}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* COUPON SECTION - Updated Logic */}
+          <div className="flex gap-2 pt-2">
+            <input
+              value={coupon}
+              onChange={(e) => setCoupon(e.target.value)}
+              disabled={isCouponApplied} // ✅ Apply হলে ইনপুট লক
+              placeholder="Coupon code"
+              className={`border-2 border-black px-3 py-2 w-full text-black font-bold uppercase outline-none ${isCouponApplied ? "bg-gray-100" : ""}`}
+            />
             <button
               type="button"
-              onClick={() => navigate(-1)}
-              className="flex items-center gap-1 text-[10px] font-bold mb-8 text-red-500 hover:text-black transition-colors"
+              onClick={applyCoupon}
+              disabled={isCouponApplied || !coupon} // ✅ বাটন ডিসেবল হবে
+              className={`px-4 py-2 text-xs font-black uppercase tracking-widest transition-all ${
+                isCouponApplied 
+                ? "bg-gray-400 text-white cursor-not-allowed" 
+                : "bg-blue-600 text-white hover:bg-black"
+              }`}
             >
-              <ArrowLeft size={14} /> BACK
+              {isCouponApplied ? "Applied" : "Apply"}
+            </button>
+          </div>
+
+          <div className="space-y-2 text-sm border-t-2 border-black pt-4 font-bold">
+            <p className="flex justify-between">Subtotal: <span>৳{subtotal}</span></p>
+            <p className="flex justify-between">Delivery: <span>৳{shipping}</span></p>
+            {discount > 0 && (
+              <p className="text-green-600 flex justify-between">Discount: <span>-৳{discount}</span></p>
+            )}
+            <p className="text-2xl font-black flex justify-between border-t-2 border-black pt-2 uppercase italic">
+              Total: <span>৳{total}</span>
+            </p>
+          </div>
+
+          <div className="grid grid-cols-2 gap-2 mt-4">
+            <button
+              type="button"
+              onClick={() => setPaymentMethod("cashondelivery")}
+              className={`border-2 border-black p-3 flex flex-col items-center gap-1 transition-all ${
+                paymentMethod === "cashondelivery" ? "bg-black text-white" : "hover:bg-gray-50"
+              }`}
+            >
+              <Truck size={20} />
+              <span className="text-[10px] font-black uppercase">COD</span>
             </button>
 
-            <h2 className="text-xl font-black mb-8 italic">
-              01. SHIPPING INFORMATION
-            </h2>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-              <div className="space-y-1">
-                <label className="text-[10px] font-bold">Full Name *</label>
-                <input
-                  {...register("name", { required: true })}
-                  className="w-full p-2.5 border border-zinc-300 outline-none text-[11px] font-bold focus:border-black"
-                />
-              </div>
-
-              <div className="space-y-1">
-                <label className="text-[10px] font-bold">Phone Number *</label>
-                <input
-                  {...register("phone", { required: true })}
-                  className="w-full p-2.5 border border-zinc-300 outline-none text-[11px] font-bold focus:border-black"
-                />
-              </div>
-
-              <div className="space-y-1">
-                <label className="text-[10px] font-bold">Email Address *</label>
-                <input
-                  {...register("email", { required: true })}
-                  type="email"
-                  className="w-full p-2.5 border border-zinc-300 outline-none text-[11px] font-bold focus:border-black"
-                />
-              </div>
-
-              <div className="space-y-1">
-                <label className="text-[10px] font-bold">District *</label>
-                <select
-                  {...register("district")}
-                  className="w-full p-2.5 border border-zinc-300 outline-none text-[11px] font-bold bg-white"
-                >
-                  {districts.map((d) => (
-                    <option key={d} value={d}>
-                      {d}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="space-y-1">
-                <label className="text-[10px] font-bold">
-                  Thana / Upazila *
-                </label>
-                <input
-                  {...register("thana", { required: true })}
-                  className="w-full p-2.5 border border-zinc-300 outline-none text-[11px] font-bold focus:border-black"
-                />
-              </div>
-
-              <div className="space-y-1">
-                <label className="text-[10px] font-bold">Zip Code *</label>
-                <input
-                  {...register("zipCode", { required: true })}
-                  placeholder="e.g. 1200"
-                  className="w-full p-2.5 border border-zinc-300 outline-none text-[11px] font-bold focus:border-black"
-                />
-              </div>
-
-              {/* Boro Address Field */}
-              <div className="md:col-span-2 space-y-1">
-                <label className="text-[10px] font-bold">
-                  Full Address (House, Road, Area) *
-                </label>
-                <textarea
-                  {...register("address", { required: true })}
-                  className="w-full p-3 border border-zinc-300 outline-none text-[11px] font-bold h-24 resize-none focus:border-black"
-                  placeholder="Enter your detailed delivery address..."
-                />
-              </div>
-            </div>
+            <button
+              type="button"
+              onClick={() => setPaymentMethod("card")}
+              className={`border-2 border-black p-3 flex flex-col items-center gap-1 transition-all ${
+                paymentMethod === "card" ? "bg-black text-white" : "hover:bg-gray-50"
+              }`}
+            >
+              <CreditCard size={20} />
+              <span className="text-[10px] font-black uppercase">Card</span>
+            </button>
           </div>
 
-          {/* RIGHT: SUMMARY */}
-          <div className="w-full lg:w-[400px] p-6 md:p-10 flex flex-col bg-white">
-            <h2 className="text-xl font-black mb-8 italic">
-              02. ORDER SUMMARY
-            </h2>
-
-            <div className="space-y-4 mb-6 max-h-[250px] overflow-y-auto border-b border-zinc-200 pb-4">
-              {checkoutItems.map((item) => (
-                <div key={item._id} className="flex gap-3 items-center">
-                  <img
-                    src={item.image}
-                    className="w-10 h-12 object-cover border border-zinc-200"
-                    alt=""
-                  />
-                  <div className="flex-1">
-                    <h4 className="text-[9px] font-bold truncate">
-                      {item.name}
-                    </h4>
-                    <div className="flex items-center border border-zinc-300 w-fit mt-1">
-                      <button
-                        type="button"
-                        onClick={() => updateQty(item._id, "dec")}
-                        className="px-1 border-r border-zinc-300"
-                      >
-                        <Minus size={10} />
-                      </button>
-                      <span className="px-2 text-[10px] font-bold">
-                        {item.quantity || 1}
-                      </span>
-                      <button
-                        type="button"
-                        onClick={() => updateQty(item._id, "inc")}
-                        className="px-1 border-l border-zinc-300"
-                      >
-                        <Plus size={10} />
-                      </button>
-                    </div>
-                  </div>
-                  <span className="text-[10px] font-bold text-black">
-                    ৳{item.price * (item.quantity || 1)}
-                  </span>
-                </div>
-              ))}
-            </div>
-
-            {/* COUPON BOX */}
-            <div className="flex mb-6 border border-zinc-300 p-1 h-11 focus-within:border-black transition-all">
-              <input
-                onChange={(e) => setCouponCode(e.target.value)}
-                placeholder="PROMO CODE"
-                className="flex-1 outline-none text-[10px] font-bold px-3 uppercase bg-transparent"
-              />
-              <button
-                type="button"
-                onClick={handleApplyCoupon}
-                className="bg-black text-white px-4 text-[9px] font-bold hover:bg-zinc-800 transition-all uppercase"
-              >
-                Claim
-              </button>
-            </div>
-
-            {/* CALCULATIONS */}
-            <div className="space-y-2 text-[11px] font-bold mb-8">
-              <div className="flex justify-between text-zinc-700">
-                <span>SUBTOTAL</span>
-                <span>৳{cartTotal}</span>
-              </div>
-              <div className="flex justify-between text-zinc-700">
-                <span>SHIPPING FEE</span>
-                <span>৳{deliveryCharge}</span>
-              </div>
-              {discount > 0 && (
-                <div className="flex justify-between text-blue-700">
-                  <span>COUPON DISCOUNT</span>
-                  <span>-৳{discount}</span>
-                </div>
-              )}
-              <div className="pt-4 flex justify-between text-2xl font-[1000] italic border-t border-zinc-300 text-black">
-                <span>TOTAL</span>
-                <span className="text-blue-700">৳{grandTotal}</span>
-              </div>
-            </div>
-
-            {/* PAYMENT & STRIPE */}
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-2">
-                <button
-                  type="button"
-                  onClick={() => setPaymentMethod("cashondelivery")}
-                  className={`flex items-center justify-center rounded-2xl gap-2 py-3 border text-[10px] font-bold transition-all ${paymentMethod === "cashondelivery" ? "bg-black text-white border-black" : "border-zinc-300 hover:border-black"}`}
-                >
-                  <Truck size={20} /> Cash on Delivery
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setPaymentMethod("card")}
-                  className={`flex items-center rounded-2xl justify-center  gap-2 py-3 border text-[11px] font-bold transition-all ${paymentMethod === "card" ? "bg-blue-700 text-white border-blue-700" : "border-zinc-300 hover:border-black"}`}
-                >
-                  <CreditCard size={20} /> Card
-                </button>
-              </div>
-
-              <button
-                type="submit"
-                className={`w-full py-4 font-black text-[11px] rounded-2xl tracking-[0.2em] transition-all flex items-center justify-center gap-2 ${paymentMethod === "card" ? "bg-blue-700 text-white" : "bg-black text-white"}`}
-              >
-                {paymentMethod === "card" ? "PROCEED TO PAYMENT" : "PLACE ORDER"}
-                <ShieldCheck size={16} />
-              </button>
-            </div>
-
-            
-          </div>
-        </form>
-      </div>
+          <button
+            type="submit"
+            className="w-full py-5 bg-black text-white flex items-center justify-center gap-3 font-black uppercase tracking-[0.2em] hover:bg-blue-600 transition-all shadow-[5px_5px_0px_#ccc] active:scale-95"
+          >
+            {paymentMethod === "card" ? "Proceed to Payment" : "Confirm Order"}
+            <ShieldCheck size={20} />
+          </button>
+        </div>
+      </form>
     </div>
   );
 };

@@ -17,6 +17,9 @@ import AddProduct from "../pages/DashBorad/AddProducts/AddProducts";
 import AdminProducts from "../pages/DashBorad/AdminProducts/AdminProducts";
 import EditProduct from "../pages/DashBorad/EditProduct/EditProduct";
 import Checkout from "../pages/checkout/Checkout";
+import Payments from "../pages/checkout/Payments/Payments";
+import AddCoupon from "../pages/DashBorad/Coupons/AddCoupon";
+import ManageCoupons from "../pages/DashBorad/Coupons/ManageCoupons";
 
 export const router = createBrowserRouter([
   {
@@ -43,6 +46,10 @@ export const router = createBrowserRouter([
       {
         path: "/checkout",
         element: <Checkout></Checkout>,
+      },
+      {
+        path: "payments",
+        Component: Payments,
       },
     ],
   },
@@ -79,6 +86,14 @@ export const router = createBrowserRouter([
       {
         path: "edit-product/:id",
         element: <EditProduct></EditProduct>,
+      },
+      {
+        path: "addcoupon",
+        element: <AddCoupon></AddCoupon>,
+      },
+      {
+        path: "managecoupons",
+        element: <ManageCoupons></ManageCoupons>,
       },
     ],
   },

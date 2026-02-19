@@ -4,16 +4,14 @@ import { NavLink, Outlet } from "react-router-dom";
 import {
   LayoutDashboard,
   PlusSquare,
-  ShoppingBag,
-  Users,
-  Settings,
   Home,
   Menu,
   LogOut,
   Layers,
   ChevronRight,
-  TrendingUp,
   Boxes,
+  TicketPlus,
+  Tickets,
 } from "lucide-react";
 import useAuth from "../hooks/useAuth";
 
@@ -37,11 +35,17 @@ const DashboardLayout = () => {
 
       icon: <Boxes size={20} strokeWidth={2.5} className="text-indigo-500" />,
     },
-    { name: "Customers", path: "/dashboard/users", icon: <Users size={20} /> },
+
     {
-      name: "Settings",
-      path: "/dashboard/settings",
-      icon: <Settings size={20} />,
+      name: "Add Coupon",
+      path: "/dashboard/addcoupon",
+      icon: <TicketPlus size={20} className="text-cyan-400" />,
+    },
+
+    {
+      name: "Manage Coupons",
+      path: "/dashboard/managecoupons",
+      icon: <Tickets size={20} className="text-cyan-400" />,
     },
   ];
 
