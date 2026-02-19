@@ -106,12 +106,9 @@ const Navbar = () => {
       return;
     }
 
-   
     setIsCartOpen(false);
 
-    
     setTimeout(() => {
-     
       navigate("/checkout", { replace: true });
     }, 150);
   };
@@ -119,7 +116,7 @@ const Navbar = () => {
   return (
     <>
       <nav className="bg-white border-b border-slate-100 sticky top-0 z-[100] shadow-sm py-1 font-sans">
-        <div className="max-w-7xl mx-auto px-4 h-16 flex justify-between items-center gap-2">
+        <div className="max-w-7xl mx-auto px-3 h-16 flex justify-between items-center gap-2">
           <div className="flex items-center gap-2 shrink-0">
             <button
               onClick={() => setOpenMenu(true)}
@@ -129,14 +126,14 @@ const Navbar = () => {
             </button>
             <NavLink
               to="/"
-              className="text-xl md:text-2xl font-black tracking-tighter text-black uppercase italic"
+              className="text-xl md:text-2xl font-black pr-6 tracking-tighter text-black uppercase italic"
             >
               SHOP<span className="text-blue-700 sm:inline hidden">ZONE.</span>
-              <span className="text-blue-700 inline sm:hidden">Z.</span>
+              <span className="text-blue-700 inline sm:hidden">ZONE.</span>
             </NavLink>
           </div>
 
-          <div className="hidden lg:flex items-center space-x-6">
+          <div className="hidden lg:flex items-center space-x-8">
             {NAV_LINKS.map((link) => (
               <div
                 key={link.name}
@@ -154,7 +151,7 @@ const Navbar = () => {
                   <NavLink
                     to={link.path}
                     className={({ isActive }) =>
-                      `text-[11px] font-black uppercase tracking-widest transition-colors ${isActive ? "text-blue-700" : "text-slate-700 hover:text-blue-700"}`
+                      `text-[12px] font-black uppercase tracking-widest transition-colors ${isActive ? "text-blue-700" : "text-slate-700 hover:text-blue-700"}`
                     }
                   >
                     {link.name}
@@ -167,7 +164,7 @@ const Navbar = () => {
                       <NavLink
                         key={sub.name}
                         to={sub.path}
-                        className="block px-6 py-2.5 text-[10px] font-black uppercase text-slate-600 hover:text-blue-700 hover:bg-blue-50/50 border-l-4 border-transparent hover:border-blue-700 transition-all"
+                        className="block px-6 py-2.5 text-[12px] font-black uppercase text-slate-600 hover:text-blue-700 hover:bg-blue-50/50 border-l-4 border-transparent hover:border-blue-700 transition-all"
                       >
                         {sub.name}
                       </NavLink>
@@ -179,7 +176,7 @@ const Navbar = () => {
           </div>
 
           <div className="flex-1 flex items-center justify-end gap-1 sm:gap-3">
-            <div className="relative flex-1 max-w-[150px] sm:max-w-[220px] md:max-w-[260px] flex items-center bg-slate-100 rounded-full px-3 py-1.5 border border-transparent focus-within:border-blue-700 transition-all">
+            <div className="relative flex-1 max-w-[100px] sm:max-w-[220px] md:max-w-[260px] flex items-center bg-slate-100 rounded-full px-3 py-1.5 border border-transparent focus-within:border-blue-700 transition-all">
               <Search size={14} className="text-slate-600 shrink-0" />
               <input
                 type="text"
@@ -232,21 +229,17 @@ const Navbar = () => {
             </button>
 
             {user ? (
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => logOut()}
-                  className="p-2 text-rose-600 hidden sm:block"
-                >
-                  <LogOut size={20} />
-                </button>
-                <div className="h-8 w-8 bg-blue-100 rounded-full flex items-center justify-center text-blue-700 border border-blue-200 shadow-sm">
-                  <User size={16} />
-                </div>
-              </div>
+              <button
+                onClick={() => logOut()}
+                className="p-2 text-rose-600 hover:bg-rose-50 rounded-full transition-colors flex items-center justify-center"
+                title="Logout"
+              >
+                <LogOut size={22} />
+              </button>
             ) : (
               <NavLink
                 to="/login"
-                className="hidden sm:block px-5 py-2 bg-black text-white text-[10px] font-black uppercase rounded-full hover:bg-blue-700 transition-all"
+                className="px-4 py-2 bg-black text-white text-[10px] font-black uppercase rounded-full hover:bg-blue-700 transition-all shadow-sm"
               >
                 Login
               </NavLink>
@@ -267,12 +260,12 @@ const Navbar = () => {
           className={`absolute top-0 left-0 w-[85%] max-w-[320px] h-full bg-white transition-transform duration-500 shadow-2xl ${openMenu ? "translate-x-0" : "-translate-x-full"}`}
         >
           <div className="p-6 flex justify-between items-center border-b">
-            <span className="text-xl font-black italic">
+            <span className="text-xl text-black font-black italic">
               SHOP<span className="text-blue-700">ZONE.</span>
             </span>
             <button
               onClick={() => setOpenMenu(false)}
-              className="p-2 hover:bg-slate-100 rounded-full transition-colors"
+              className="p-2 text-black rounded-full transition-colors"
             >
               <X size={28} />
             </button>
@@ -301,7 +294,7 @@ const Navbar = () => {
                   {link.isDropdown && (
                     <ChevronDown
                       size={18}
-                      className={`transition-transform duration-300 ${activeMobileSubmenu === link.name ? "rotate-180 text-blue-700" : "text-slate-400"}`}
+                      className={`transition-transform duration-300 ${activeMobileSubmenu === link.name ? "rotate-180 text-blue-700" : "text-slate-600"}`}
                     />
                   )}
                 </div>
@@ -312,7 +305,7 @@ const Navbar = () => {
                         key={sub.name}
                         to={sub.path}
                         onClick={() => setOpenMenu(false)}
-                        className="text-[11px] font-bold text-slate-500 uppercase py-1 hover:text-blue-700 transition-colors"
+                        className="text-[11px] font-bold text-slate-800 uppercase py-1 hover:text-blue-700 transition-colors"
                       >
                         {sub.name}
                       </NavLink>
@@ -343,7 +336,7 @@ const Navbar = () => {
             </span>
             <button
               onClick={() => setIsCartOpen(false)}
-              className="p-2 hover:bg-slate-100 rounded-full"
+              className="p-2 text-black rounded-full"
             >
               <X size={24} />
             </button>
