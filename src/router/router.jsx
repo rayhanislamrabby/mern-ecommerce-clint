@@ -6,14 +6,14 @@ import AuthLayouts from "../layouts/AuthLayouts";
 import NotFound from "../pages/Notfund/NotFound";
 import Login from "../pages/Authentication/Login";
 import Register from "../pages/Authentication/Register";
-import PrivateRoute from "../routes/PrivateRoute";
+
 import DashboardLayout from "../layouts/DashBoardLayout";
 import AddProducts from "../pages/DashBorad/AddProducts/AddProducts";
 
 import ProductDetails from "../pages/ProductDetails/ProductDetails";
 import AllProducts from "../pages/shop/AllProducts";
 import CategoryPage from "../pages/CategoryPage/CategoryPage";
-import AddProduct from "../pages/DashBorad/AddProducts/AddProducts";
+
 import AdminProducts from "../pages/DashBorad/AdminProducts/AdminProducts";
 import EditProduct from "../pages/DashBorad/EditProduct/EditProduct";
 import Checkout from "../pages/checkout/Checkout";
@@ -21,6 +21,9 @@ import Payments from "../pages/checkout/Payments/Payments";
 import AddCoupon from "../pages/DashBorad/Coupons/AddCoupon";
 import ManageCoupons from "../pages/DashBorad/Coupons/ManageCoupons";
 import MakeAsAdmin from "../pages/DashBorad/MakeAsAdmin/MakeAsAdmin";
+import AdminRoute from "../routes/AdminRoute";
+import PaidOders from "../pages/DashBorad/Oders/PaidOders";
+import UnpaidOrders from "../pages/DashBorad/Oders/UnpaidOrders";
 
 export const router = createBrowserRouter([
   {
@@ -71,9 +74,9 @@ export const router = createBrowserRouter([
   {
     path: "/dashboard",
     element: (
-      <PrivateRoute>
-        <DashboardLayout />
-      </PrivateRoute>
+      <AdminRoute>
+        <DashboardLayout></DashboardLayout>
+      </AdminRoute>
     ),
     children: [
       {
@@ -99,6 +102,15 @@ export const router = createBrowserRouter([
       {
         path: "makeasdadmin",
         element: <MakeAsAdmin></MakeAsAdmin>,
+      },
+      {
+        path: "PaidOders",
+        element: <PaidOders></PaidOders>,
+      },
+
+      {
+        path: "unpaidorders",
+        element: <UnpaidOrders></UnpaidOrders>,
       },
     ],
   },

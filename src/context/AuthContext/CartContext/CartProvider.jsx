@@ -1,9 +1,8 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, } from "@tanstack/react-query";
 import { createContext, useState, useEffect, useMemo } from "react";
 import toast from "react-hot-toast";
 import useAuth from "../../../hooks/useAuth";
 import useAxiosPublic from "../../../hooks/useAxiosPublic";
-
 
 export const CartContext = createContext(null);
 
@@ -32,7 +31,7 @@ const CartProvider = ({ children }) => {
     setLocalCart(storedCart);
   }, []);
 
-  // FIXED: Logic for 'cart' data
+
   const cart = useMemo(() => {
     if (user?.email) {
       return dbCart;
@@ -40,24 +39,27 @@ const CartProvider = ({ children }) => {
     return localCart;
   }, [user?.email, dbCart, localCart]);
 
-  // Combined Loading State
+ 
   const cartLoading = authLoading || (!!user?.email && isDbLoading);
 
-  // --- ACTIONS ---
+ 
 
   const { mutate: dbAddToCart } = useMutation({
-    mutationFn: async (product) => {
-      const cartItem = {
-        productId: product._id,
-        name: product.name,
-        price: product.price,
-        image: product.image,
-        email: user.email,
-        quantity: product.quantity || 1,
-      };
-      const res = await axiosPublic.post("/carts", cartItem);
-      return res.data;
-    },
+
+mutationFn: async (product) => {
+  const cartItem = {
+    productId: product._id, 
+    name: product.name,
+    price: product.price,
+    image: product.image,
+    email: user.email,
+    quantity: product.quantity || 1,
+    size: product.size, 
+    sku: product.sku || "N/A",
+  };
+  const res = await axiosPublic.post("/carts", cartItem);
+  return res.data;
+},
     onSuccess: () => {
       refetch();
       toast.success("Added to database cart");
@@ -85,7 +87,7 @@ const CartProvider = ({ children }) => {
       }
       localStorage.setItem("cart", JSON.stringify(newCart));
       setLocalCart(newCart);
-      toast.success("Added to local cart");
+      toast.success;
     }
   };
 
@@ -112,12 +114,16 @@ const CartProvider = ({ children }) => {
   };
 
   const clearCart = async () => {
-    if (user?.email) {
-      await axiosPublic.delete(`/carts/clear?email=${user.email}`);
-      refetch();
-    } else {
-      localStorage.removeItem("cart");
-      setLocalCart([]);
+    try {
+      if (user?.email) {
+        await axiosPublic.delete(`/carts/clear?email=${user.email}`); 
+        refetch();
+      } else {
+        localStorage.removeItem("cart");
+        setLocalCart([]);
+      }
+    } catch (err) {
+      console.error("Clear cart error:", err);
     }
   };
 

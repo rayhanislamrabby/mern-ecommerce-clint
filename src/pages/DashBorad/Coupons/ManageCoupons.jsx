@@ -1,6 +1,9 @@
+
+
+
 import React, { useState } from "react";
 import useAxiosSecure from "../../../hooks/useAxiosSecures";
-import { Trash2, Edit3, Loader2, Zap, X, Save, Layers, Globe, PowerOff } from "lucide-react";
+import { Trash2, Edit3, Loader2, Zap, X, Save, Layers, Globe, PowerOff, Calendar } from "lucide-react";
 import Swal from "sweetalert2";
 import toast from "react-hot-toast";
 import { useForm } from "react-hook-form";
@@ -12,7 +15,7 @@ const ManageCoupons = () => {
   const queryClient = useQueryClient();
   const { register, handleSubmit, reset } = useForm();
 
-  // --- 1. GET ALL COUPONS USING USEQUERY ---
+  // --- 1. GET ALL COUPONS ---
   const { data: coupons = [], isLoading } = useQuery({
     queryKey: ["coupons"],
     queryFn: async () => {
@@ -22,18 +25,16 @@ const ManageCoupons = () => {
   });
 
   // --- 2. DELETE MUTATION ---
-
-const deleteMutation = useMutation({
-  mutationFn: async (id) => {
-   
-    return await axiosSecure.delete(`/coupons/delete/${id}`); 
-  },
-  onSuccess: () => {
-    queryClient.invalidateQueries(["coupons"]);
-    toast.success("Coupon Expunged!");
-  },
-  onError: () => toast.error("Vault protection active! Access Denied."),
-});
+  const deleteMutation = useMutation({
+    mutationFn: async (id) => {
+      return await axiosSecure.delete(`/coupons/delete/${id}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(["coupons"]);
+      toast.success("Coupon Expunged!");
+    },
+    onError: () => toast.error("Vault protection active! Access Denied."),
+  });
 
   // --- 3. UPDATE MUTATION ---
   const updateMutation = useMutation({
@@ -48,7 +49,6 @@ const deleteMutation = useMutation({
     onError: () => toast.error("Update failed! Check Node connection."),
   });
 
-  // Handle Delete with SweetAlert
   const handleDelete = (id) => {
     Swal.fire({
       title: "ARE YOU SURE?",
@@ -73,7 +73,8 @@ const deleteMutation = useMutation({
       discountValue: parseFloat(data.discountValue),
       minPurchase: parseFloat(data.minPurchase),
       usageLimit: parseInt(data.usageLimit),
-      isActive: data.isActive === "true"
+      isActive: data.isActive === "true",
+      expiryDate: data.expiryDate // Backend expects ISO or Date string
     };
     updateMutation.mutate({ id: editingCoupon._id, updatedData });
   };
@@ -85,14 +86,14 @@ const deleteMutation = useMutation({
   );
 
   return (
-    <div className="min-h-screen bg-[#0f172a] p-4 md:p-8 font-sans">
+    <div className="min-h-screen  p-4 md:p-8 font-sans">
       {/* Header */}
       <div className="max-w-7xl mx-auto mb-8 border-b-2 border-slate-800 pb-4 flex justify-between items-center">
         <h2 className="text-3xl font-black uppercase text-white flex items-center gap-2 italic tracking-tighter">
           <Layers className="text-cyan-400" size={30} /> Coupon <span className="text-cyan-500">Vault</span>
         </h2>
         <div className="text-[15px] font-bold text-blue-200 bg-slate-900 px-3 py-1 border border-slate-700">
-           TOTAL: {coupons.length}
+          TOTAL: {coupons.length}
         </div>
       </div>
 
@@ -111,8 +112,11 @@ const deleteMutation = useMutation({
               <p className="text-[12px] text-cyan-400 font-bold tracking-widest uppercase">
                 {coupon.discountType === 'percent' ? `${coupon.discountValue}% OFF` : `৳${coupon.discountValue} FLAT`}
               </p>
+              {/* Card-e expiry date show kora */}
+              <p className="text-[8px] text-slate-500 mt-1 font-bold">EXP: {new Date(coupon.expiryDate).toLocaleDateString()}</p>
             </div>
 
+            {/* Usage Progress */}
             <div className="space-y-1.5 py-2 border-t border-slate-700 text-[9px] font-bold text-slate-400 uppercase">
               <div className="flex justify-between"><span>Usage:</span> <span className="text-white">{coupon.usedCount || 0}/{coupon.usageLimit}</span></div>
               <div className="flex justify-between"><span>Min Buy:</span> <span className="text-white">৳{coupon.minPurchase}</span></div>
@@ -123,7 +127,12 @@ const deleteMutation = useMutation({
 
             <div className="flex gap-2 mt-4">
               <button 
-                onClick={() => { setEditingCoupon(coupon); reset({ ...coupon, isActive: coupon.isActive.toString() }); }}
+                onClick={() => { 
+                    setEditingCoupon(coupon); 
+                    // Input date format 'YYYY-MM-DD' hote hoy
+                    const formattedDate = coupon.expiryDate ? new Date(coupon.expiryDate).toISOString().split('T')[0] : "";
+                    reset({ ...coupon, isActive: coupon.isActive.toString(), expiryDate: formattedDate }); 
+                }}
                 className="flex-1 py-2 bg-cyan-500 text-black font-black text-[9px] uppercase border-2 border-black shadow-[3px_3px_0px_#000] hover:bg-white hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5 transition-all"
               >
                 Edit
@@ -131,7 +140,7 @@ const deleteMutation = useMutation({
               <button 
                 onClick={() => handleDelete(coupon._id)}
                 disabled={deleteMutation.isPending}
-                className="px-2 py-2 bg-rose-600 text-white border- border-black shadow-[3px_3px_0px_#000] hover:bg-black hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5 transition-all disabled:opacity-50"
+                className="px-2 py-2 bg-rose-600 text-white border border-black shadow-[3px_3px_0px_#000] hover:bg-black hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5 transition-all disabled:opacity-50"
               >
                 <Trash2 size={12} />
               </button>
@@ -140,7 +149,7 @@ const deleteMutation = useMutation({
         ))}
       </div>
 
-      {/* EDIT MODAL */}
+      {/* EDIT MODAL WITH DATE */}
       {editingCoupon && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-md p-4">
           <div className="bg-[#1e293b] border-4 border-cyan-500 p-6 w-full max-w-lg shadow-[0_0_30px_rgba(6,182,212,0.2)] animate-pop-in">
@@ -156,14 +165,34 @@ const deleteMutation = useMutation({
                   <label className="text-cyan-400">Coupon Code</label>
                   <input {...register("code")} className="w-full p-3 bg-slate-900 border-2 border-slate-700 text-white outline-none focus:border-cyan-400 uppercase text-sm" />
                 </div>
+                
                 <div className="space-y-1">
-                  <label>Limit</label>
+                  <label>Usage Limit</label>
                   <input type="number" {...register("usageLimit")} className="w-full p-3 bg-slate-900 border-2 border-slate-700 text-white outline-none" />
                 </div>
+
                 <div className="space-y-1">
-                  <label>Value</label>
+                  <label>Min Purchase (৳)</label>
+                  <input type="number" {...register("minPurchase")} className="w-full p-3 bg-slate-900 border-2 border-slate-700 text-white outline-none" />
+                </div>
+
+                <div className="space-y-1">
+                  <label>Discount Value</label>
                   <input type="number" {...register("discountValue")} className="w-full p-3 bg-slate-900 border-2 border-slate-700 text-white outline-none" />
                 </div>
+
+                {/* --- NEW EXPIRY DATE FIELD --- */}
+                <div className="space-y-1">
+                  <label className="text-cyan-400">Expiry Date</label>
+                  <div className="relative">
+                    <input 
+                      type="date" 
+                      {...register("expiryDate")} 
+                      className="w-full p-3 bg-slate-900 border-2 border-slate-700 text-white outline-none focus:border-cyan-400 text-xs" 
+                    />
+                  </div>
+                </div>
+
                 <div className="space-y-1">
                   <label className="text-cyan-400">Type</label>
                   <select {...register("discountType")} className="w-full p-3 bg-slate-900 border-2 border-slate-700 text-white outline-none">
@@ -171,6 +200,7 @@ const deleteMutation = useMutation({
                     <option value="percent">Percent (%)</option>
                   </select>
                 </div>
+
                 <div className="space-y-1">
                   <label className="text-cyan-400">Status</label>
                   <select {...register("isActive")} className="w-full p-3 bg-slate-900 border-2 border-slate-700 text-white outline-none">
@@ -178,6 +208,7 @@ const deleteMutation = useMutation({
                     <option value="false">Offline</option>
                   </select>
                 </div>
+
                 <button 
                   type="submit" 
                   disabled={updateMutation.isPending}

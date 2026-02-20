@@ -79,7 +79,7 @@ const MakeAsAdmin = () => {
   };
 
   return (
-    <div className="p-8 w-full max-w-6xl mx-auto bg-[#0f172a] min-h-screen text-slate-200">
+    <div className="p-8 w-full max-w-6xl mx-auto  min-h-screen text-slate-200">
       {/* Search Header - Full Width Organic Input */}
       <div className="mb-12 max-w-2xl">
         <h2 className="text-2xl font-bold mb-6 flex items-center gap-2 tracking-tight">

@@ -16,7 +16,7 @@ import {
 import useAuth from "../../../hooks/useAuth";
 import { CartContext } from "../../../context/AuthContext/CartContext/CartProvider";
 import useAxiosPublic from "../../../hooks/useAxiosPublic";
-
+import useUserRole from "../../../hooks/useuserRole";
 
 const NAV_LINKS = [
   { name: "Home", path: "/" },
@@ -60,10 +60,11 @@ const NAV_LINKS = [
     ],
   },
   { name: "Gift Card", path: "/giftcard" },
-  { name: "Dashboard", path: "/dashboard" },
 ];
 
 const Navbar = () => {
+  const { userRole, isRoleLoading } = useUserRole(); // Correct variable names
+
   const [openMenu, setOpenMenu] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -174,6 +175,22 @@ const Navbar = () => {
                 )}
               </div>
             ))}
+
+            {/* ✅ Only Admin can see this on Desktop */}
+            {!isRoleLoading && userRole === "admin" && (
+              <NavLink
+                to="/dashboard"
+                className={({ isActive }) =>
+                  `text-[12px] font-black uppercase tracking-widest transition-colors ${
+                    isActive
+                      ? "text-blue-700"
+                      : "text-slate-700 hover:text-blue-700"
+                  }`
+                }
+              >
+                Dashboard
+              </NavLink>
+            )}
           </div>
 
           <div className="flex-1 flex items-center justify-end gap-1 sm:gap-3">
@@ -315,6 +332,19 @@ const Navbar = () => {
                 )}
               </div>
             ))}
+
+            {/* ✅ Only Admin can see this on Mobile Sidebar */}
+            {!isRoleLoading && userRole === "admin" && (
+              <div className="border-t border-slate-100 mt-2 pt-2">
+                <NavLink
+                  to="/dashboard"
+                  onClick={() => setOpenMenu(false)}
+                  className="block py-4 text-[13px] font-black uppercase tracking-widest text-blue-700"
+                >
+                  Dashboard
+                </NavLink>
+              </div>
+            )}
           </div>
         </div>
       </div>

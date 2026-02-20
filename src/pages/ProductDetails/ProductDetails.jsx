@@ -16,7 +16,6 @@ import Swal from "sweetalert2";
 import { CartContext } from "../../context/AuthContext/CartContext/CartProvider";
 import useAxiosPublic from "../../hooks/useAxiosPublic";
 
-
 const ProductDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -81,6 +80,7 @@ const ProductDetails = () => {
       originalId: product._id,
       size: selectedSize,
       quantity: quantity,
+     
     };
 
     if (isBuyNow) {
@@ -171,22 +171,110 @@ const ProductDetails = () => {
               </div>
             </div>
 
-            {/* Size Selector */}
-            <div className="space-y-3 pt-4">
-              <h3 className="text-[10px] tracking-widest text-gray-700 font-extrabold uppercase">
-                SELECT SIZE
+            {/* Minimal Size Selection Table */}
+            <div className="space-y-4 pt-4">
+              <h3 className="text-[12px] tracking-widest text-zinc-800 font-black uppercase">
+                Select Size
               </h3>
-              <div className="flex flex-wrap gap-2">
-                {product.sizes?.map((size) => (
-                  <button
-                    key={size}
-                    onClick={() => setSelectedSize(size)}
-                    className={`w-12 h-12 border-2 text-[11px] font-[1000] transition-all rounded-xl ${selectedSize === size ? "bg-black text-white border-black shadow-lg" : "bg-white text-black border-zinc-200 hover:border-black"}`}
-                  >
-                    {size}
-                  </button>
-                ))}
+
+              <div className="max-w-[250px]">
+                {" "}
+                {/* Table-tike choto rakhar jonno width limit */}
+                <div className="border border-black rounded-lg overflow-hidden">
+                  <table className="w-full text-[12px] font-bold bg-white">
+                    <thead>
+                      <tr className="border-b border-black">
+                        <th className="px-4 py-2 text-left bg-zinc-50 border-r border-black">
+                          Size
+                        </th>
+                        <th className="px-4 py-2 text-center">Action</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-zinc-200">
+                      {product.sizes?.map((size) => (
+                        <tr
+                          key={size}
+                          onClick={() => setSelectedSize(size)}
+                          className={`cursor-pointer transition-all ${
+                            selectedSize === size
+                              ? "bg-black text-white"
+                              : "bg-white text-black hover:bg-zinc-50"
+                          }`}
+                        >
+                          <td className="px-4 py-2 border-r border-zinc-200 font-black">
+                            {size}
+                          </td>
+                          <td className="px-4 py-2 text-center text-[10px]">
+                            {selectedSize === size ? "SELECTED" : "SELECT"}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </div>
+
+              {/* Measurement Info (Table-er niche) */}
+              <div className="bg-zinc-50 p-4 rounded-xl border border-zinc-100 max-w-[350px]">
+                <div className="flex items-center gap-2 mb-2">
+                  <Info size={14} className="text-zinc-800" />
+                  <h4 className="text-[10px] font-black uppercase tracking-tighter">
+                    Measurement Guide (Inches)
+                  </h4>
+                </div>
+
+                <div className="grid grid-cols-3 gap-4 border-t border-zinc-200 pt-2">
+                  <div className="space-y-1">
+                    <p className="text-[9px] text-zinc-800 font-bold uppercase">
+                      Size
+                    </p>
+                    <p className="text-[11px] font-black">
+                      {selectedSize || "—"}
+                    </p>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-[9px] text-zinc-800 font-bold uppercase">
+                      Chest
+                    </p>
+                    <p className="text-[11px] font-black">
+                      {selectedSize === "M"
+                        ? "38-40"
+                        : selectedSize === "L"
+                          ? "41-43"
+                          : selectedSize === "XL"
+                            ? "44-46"
+                            : "—"}
+                    </p>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-[9px] text-zinc-800 font-bold uppercase">
+                      Length
+                    </p>
+                    <p className="text-[11px] font-black">
+                      {selectedSize === "M"
+                        ? "27"
+                        : selectedSize === "L"
+                          ? "28"
+                          : selectedSize === "XL"
+                            ? "29"
+                            : "—"}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Clean Description Section */}
+            <div className="pt-3 border-t border-zinc-100 mt-3">
+              <div className="flex items-center gap-2 mb-2">
+                <AlignLeft size={14} className="text-zinc-800" />
+                <h3 className="text-[11px] font-[1000] tracking-widest uppercase">
+                  Product Description
+                </h3>
+              </div>
+              <p className="text-[11px] leading-relaxed text-zinc-700 font-medium normal-case">
+                {product.description}
+              </p>
             </div>
 
             {/* Actions */}

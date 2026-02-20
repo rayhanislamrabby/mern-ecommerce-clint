@@ -9,10 +9,13 @@ import {
   LogOut,
   Layers,
   ChevronRight,
-  Boxes,
+
   TicketPlus,
   Tickets,
   UserCog,
+  CheckCircle,
+  PackageSearch,
+  CircleDollarSign,
 } from "lucide-react";
 import useAuth from "../hooks/useAuth";
 
@@ -26,17 +29,44 @@ const DashboardLayout = () => {
       icon: <LayoutDashboard size={20} />,
     },
     {
-      name: "Add Products",
-      path: "/dashboard/addproducts",
-      icon: <PlusSquare size={20} />,
+      name: "Paid Orders",
+      path: "/dashboard/paidoders",
+      icon: (
+        <CheckCircle size={20} strokeWidth={2.5} className="text-emerald-500" />
+      ),
     },
     {
-      name: "Update Products",
-      path: "/dashboard/adminproducts",
+      name: "Unpaid Orders",
+      path: "/dashboard/unpaidorders",
 
-      icon: <Boxes size={20} strokeWidth={2.5} className="text-indigo-500" />,
+      icon: (
+        <CircleDollarSign
+          size={20}
+          strokeWidth={2.5}
+          className="text-orange-500"
+        />
+      ),
     },
 
+    {
+      name: "Add Products",
+      path: "/dashboard/addproducts",
+      icon: (
+        <PlusSquare size={20} strokeWidth={2.5} className="text-blue-500" />
+      ),
+    },
+
+    {
+      name: "Manage Products",
+      path: "/dashboard/adminproducts",
+      icon: (
+        <PackageSearch
+          size={20}
+          strokeWidth={2.5}
+          className="text-indigo-500"
+        />
+      ),
+    },
     {
       name: "Add Coupon",
       path: "/dashboard/addcoupon",
@@ -68,7 +98,7 @@ const DashboardLayout = () => {
   };
 
   return (
-    <div className="drawer lg:drawer-open bg-[#E3EDF7] font-sans">
+    <div className="drawer lg:drawer-open bg-[#1e4061] font-sans">
       <input id="my-drawer-2" type="checkbox" className="drawer-toggle" />
 
       {/* --- Main Content Area --- */}
@@ -78,7 +108,7 @@ const DashboardLayout = () => {
           <div className="flex-1">
             <label
               htmlFor="my-drawer-2"
-              className="btn btn-ghost lg:hidden text-slate-900 mr-4"
+              className="btn btn-ghost lg:hidden hover:text-emerald-500 text-slate-900 mr-4"
             >
               <Menu size={24} />
             </label>
@@ -127,7 +157,7 @@ const DashboardLayout = () => {
         <label htmlFor="my-drawer-2" className="drawer-overlay"></label>
 
         {/* Updated Gradient with Deeper Tones */}
-        <div className="w-80 min-h-full bg-gradient-to-b from-[#b8d9f5] via-[#c6dfff] to-[#e3edf7] border-r border-slate-300 flex flex-col shadow-2xl">
+        <div className="w-80 min-h-full bg-gradient-to-b from-[#11416b] via-[#c6dfff] to-[#052341] border-r border-slate-300 flex flex-col shadow-2xl">
           {/* Logo Section */}
           <div className="p-10 mb-2">
             <div className="flex items-center gap-4">

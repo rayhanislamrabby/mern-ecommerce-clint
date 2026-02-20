@@ -1,5 +1,3 @@
-
-
 import React, { useState, useEffect, useContext } from "react";
 import { useForm } from "react-hook-form";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -16,10 +14,10 @@ import {
 } from "lucide-react";
 
 import { districts } from "./Districts";
-import useAxiosPublic from "../../hooks/useAxiosPublic";
+import useAxiosSecure from "../../hooks/useAxiosSecures";
 
 const Checkout = () => {
-  const axiosPublic = useAxiosPublic();
+  const axiosSecure = useAxiosSecure();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -29,16 +27,15 @@ const Checkout = () => {
   const [discount, setDiscount] = useState(0);
   const [coupon, setCoupon] = useState("");
   const [paymentMethod, setPaymentMethod] = useState("cashondelivery");
-  const [isCouponApplied, setIsCouponApplied] = useState(false); // ✅ Button disable state
+  const [isCouponApplied, setIsCouponApplied] = useState(false); //  Button disable state
 
-  // ✅ Buy Now detect (single source of truth)
+  //  Buy Now detect (single source of truth)
   const isBuyNow = !!location.state?.buyNow;
 
   const { register, handleSubmit, watch } = useForm({
     defaultValues: { district: "Dhaka" },
   });
 
- 
   useEffect(() => {
     if (!isLoading) {
       const data = location.state?.cartItems || cart;
@@ -72,10 +69,12 @@ const Checkout = () => {
     if (isCouponApplied) return;
 
     try {
-      const res = await axiosPublic.get(`/coupons/${coupon}?amount=${subtotal}`);
+      const res = await axiosSecure.get(
+        `/coupons/${coupon}?amount=${subtotal}`,
+      );
 
       // usedCount update করা
-      await axiosPublic.patch(`/coupons/update-count/${coupon}`);
+      await axiosSecure.patch(`/coupons/update-count/${coupon}`);
 
       const d =
         res.data.discountType === "fixed"
@@ -83,8 +82,8 @@ const Checkout = () => {
           : (subtotal * res.data.discountValue) / 100;
 
       setDiscount(d);
-      setIsCouponApplied(true); 
-      toast.success("Coupon Applied & Count Updated! 🎫");
+      setIsCouponApplied(true);
+      toast.success("Coupon Applied");
     } catch (err) {
       setDiscount(0);
       setIsCouponApplied(false);
@@ -100,12 +99,15 @@ const Checkout = () => {
       ...formData,
       items,
       subtotal,
+
       shippingFee: shipping,
       discount,
-      couponCode: isCouponApplied ? coupon : null, 
+
+      couponCode: isCouponApplied ? coupon : null,
       totalAmount: total,
       paymentMethod,
       orderDate: new Date(),
+      deliveryStatus: "pending",
       cartIds: cartIdsForBackend,
       isBuyNow,
     };
@@ -125,7 +127,7 @@ const Checkout = () => {
 
         if (!result.isConfirmed) return;
 
-        const res = await axiosPublic.post("/orders", {
+        const res = await axiosSecure.post("/orders", {
           ...orderData,
           paymentStatus: "unpaid",
           transactionId: null,
@@ -142,7 +144,7 @@ const Checkout = () => {
       }
 
       // ================= CARD PAYMENT =================
-      const { data } = await axiosPublic.post("/create-payment-intent", {
+      const { data } = await axiosSecure.post("/create-payment-intent", {
         price: total,
       });
 
@@ -153,7 +155,9 @@ const Checkout = () => {
       }
     } catch (err) {
       console.error("Submit Error:", err);
-      toast.error(err.response?.data?.message || "Order Failed! Server error 500.");
+      toast.error(
+        err.response?.data?.message || "Order Failed! Server error 500.",
+      );
     }
   };
 
@@ -180,7 +184,9 @@ const Checkout = () => {
           >
             <ArrowLeft size={16} /> Back
           </button>
-          <h2 className="text-3xl font-bold uppercase tracking-tight">Shipping Information</h2>
+          <h2 className="text-3xl font-bold uppercase tracking-tight">
+            Shipping Information
+          </h2>
 
           <div className="grid md:grid-cols-2 gap-4">
             {["name", "phone", "email", "thana", "zip"].map((f) => (
@@ -211,11 +217,16 @@ const Checkout = () => {
 
         {/* RIGHT SUMMARY */}
         <div className="w-full lg:w-[420px] border-[3px] border-black p-6 space-y-4 bg-white shadow-[8px_8px_0px_#000]">
-          <h2 className="text-xl font-black uppercase italic tracking-tighter border-b-2 border-black pb-2">Order Summary</h2>
+          <h2 className="text-xl font-black uppercase italic tracking-tighter border-b-2 border-black pb-2">
+            Order Summary
+          </h2>
 
           <div className="space-y-5 max-h-[320px] overflow-y-auto pr-2 custom-scrollbar">
             {items.map((item) => (
-              <div key={item._id} className="flex items-center gap-4 border-b border-gray-100 pb-4">
+              <div
+                key={item._id}
+                className="flex items-center gap-4 border-b border-gray-100 pb-4"
+              >
                 <img
                   src={item.image}
                   alt={item.name}
@@ -226,7 +237,9 @@ const Checkout = () => {
                   <h4 className="text-sm font-bold text-black truncate w-40">
                     {item.name}
                   </h4>
-                  <p className="text-blue-600 font-black text-sm">৳{item.price}</p>
+                  <p className="text-blue-600 font-black text-sm">
+                    ৳{item.price}
+                  </p>
 
                   <div className="flex items-center gap-3 mt-2">
                     <button
@@ -236,7 +249,9 @@ const Checkout = () => {
                     >
                       <Minus size={12} strokeWidth={3} />
                     </button>
-                    <span className="font-bold text-black text-sm">{item.quantity || 1}</span>
+                    <span className="font-bold text-black text-sm">
+                      {item.quantity || 1}
+                    </span>
                     <button
                       type="button"
                       onClick={() => updateQty(item._id, "inc")}
@@ -248,7 +263,9 @@ const Checkout = () => {
                 </div>
 
                 <div className="text-right font-black">
-                  <p className="text-sm">৳{item.price * (item.quantity || 1)}</p>
+                  <p className="text-sm">
+                    ৳{item.price * (item.quantity || 1)}
+                  </p>
                 </div>
               </div>
             ))}
@@ -259,18 +276,18 @@ const Checkout = () => {
             <input
               value={coupon}
               onChange={(e) => setCoupon(e.target.value)}
-              disabled={isCouponApplied} 
+              disabled={isCouponApplied}
               placeholder="Coupon code"
               className={`border-2 border-black px-3 py-2 w-full text-black font-bold uppercase outline-none ${isCouponApplied ? "bg-gray-100" : ""}`}
             />
             <button
               type="button"
               onClick={applyCoupon}
-              disabled={isCouponApplied || !coupon} 
+              disabled={isCouponApplied || !coupon}
               className={`px-4 py-2 text-xs font-black uppercase tracking-widest transition-all ${
-                isCouponApplied 
-                ? "bg-gray-400 text-white cursor-not-allowed" 
-                : "bg-blue-600 text-white hover:bg-black"
+                isCouponApplied
+                  ? "bg-gray-400 text-white cursor-not-allowed"
+                  : "bg-blue-600 text-white hover:bg-black"
               }`}
             >
               {isCouponApplied ? "Applied" : "Apply"}
@@ -278,10 +295,16 @@ const Checkout = () => {
           </div>
 
           <div className="space-y-2 text-sm border-t-2 border-black pt-4 font-bold">
-            <p className="flex justify-between">Subtotal: <span>৳{subtotal}</span></p>
-            <p className="flex justify-between">Delivery: <span>৳{shipping}</span></p>
+            <p className="flex justify-between">
+              Subtotal: <span>৳{subtotal}</span>
+            </p>
+            <p className="flex justify-between">
+              Delivery: <span>৳{shipping}</span>
+            </p>
             {discount > 0 && (
-              <p className="text-green-600 flex justify-between">Discount: <span>-৳{discount}</span></p>
+              <p className="text-green-600 flex justify-between">
+                Discount: <span>-৳{discount}</span>
+              </p>
             )}
             <p className="text-2xl font-black flex justify-between border-t-2 border-black pt-2 uppercase italic">
               Total: <span>৳{total}</span>
@@ -293,7 +316,9 @@ const Checkout = () => {
               type="button"
               onClick={() => setPaymentMethod("cashondelivery")}
               className={`border-2 border-black p-3 flex flex-col items-center gap-1 transition-all ${
-                paymentMethod === "cashondelivery" ? "bg-black text-white" : "hover:bg-gray-50"
+                paymentMethod === "cashondelivery"
+                  ? "bg-black text-white"
+                  : "hover:bg-gray-50"
               }`}
             >
               <Truck size={20} />
@@ -304,7 +329,9 @@ const Checkout = () => {
               type="button"
               onClick={() => setPaymentMethod("card")}
               className={`border-2 border-black p-3 flex flex-col items-center gap-1 transition-all ${
-                paymentMethod === "card" ? "bg-black text-white" : "hover:bg-gray-50"
+                paymentMethod === "card"
+                  ? "bg-black text-white"
+                  : "hover:bg-gray-50"
               }`}
             >
               <CreditCard size={20} />
