@@ -12,6 +12,7 @@ import {
   Boxes,
   TicketPlus,
   Tickets,
+  UserCog,
 } from "lucide-react";
 import useAuth from "../hooks/useAuth";
 
@@ -46,6 +47,12 @@ const DashboardLayout = () => {
       name: "Manage Coupons",
       path: "/dashboard/managecoupons",
       icon: <Tickets size={20} className="text-cyan-400" />,
+    },
+
+    {
+      name: "Make As Admin",
+      path: "/dashboard/makeasdadmin",
+      icon: <UserCog size={20} className="text-cyan-400" />,
     },
   ];
 

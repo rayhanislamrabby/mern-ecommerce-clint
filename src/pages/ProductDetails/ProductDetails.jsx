@@ -14,12 +14,13 @@ import {
 import Swal from "sweetalert2";
 
 import { CartContext } from "../../context/AuthContext/CartContext/CartProvider";
-import useAxiosSecure from "../../hooks/useAxiosSecures";
+import useAxiosPublic from "../../hooks/useAxiosPublic";
+
 
 const ProductDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const axiosSecure = useAxiosSecure();
+  const axiosPublic = useAxiosPublic();
   const { addToCart } = useContext(CartContext);
 
   const [quantity, setQuantity] = useState(1);
@@ -30,7 +31,7 @@ const ProductDetails = () => {
   const { data: product, isLoading: isProductLoading } = useQuery({
     queryKey: ["product", id],
     queryFn: async () => {
-      const res = await axiosSecure.get(`/products/${id}`);
+      const res = await axiosPublic.get(`/products/${id}`);
       return res.data;
     },
     staleTime: 1000 * 60 * 30,
@@ -39,7 +40,7 @@ const ProductDetails = () => {
   const { data: allProducts = [], isLoading: isRelatedLoading } = useQuery({
     queryKey: ["allProducts"],
     queryFn: async () => {
-      const res = await axiosSecure.get("/products");
+      const res = await axiosPublic.get("/products");
       return res.data;
     },
     staleTime: 1000 * 60 * 10,

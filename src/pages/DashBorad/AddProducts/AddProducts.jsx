@@ -241,7 +241,7 @@ const AddProduct = () => {
               </div>
             </div>
 
-            <div className="bg-white border border-slate-200 p-6 rounded-[2.5rem] shadow-sm">
+            <div className="bg-white border border-slate-200 p-5 rounded-[2.5rem] shadow-sm">
               <div className="flex items-center gap-2 mb-6">
                 <Ruler size={16} className="text-[#6366F1]" />
                 <h3 className="text-[11px] font-[1000] uppercase tracking-widest">
@@ -252,10 +252,10 @@ const AddProduct = () => {
                 <table className="w-full text-left">
                   <thead className="bg-slate-50/50">
                     <tr className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                      <th className="py-4 px-5">Active</th>
-                      <th className="py-4 px-5">Size TAG</th>
-                      <th className="py-4 px-5 text-center">Chest (In)</th>
-                      <th className="py-4 px-5 text-center">Length (In)</th>
+                      <th className="py-2 px-3">Active</th>
+                      <th className="py-2 px-3">Size TAG</th>
+                      <th className="py-2 px-3 text-center">Chest (In)</th>
+                      <th className="py-2 px-3 text-center">Length (In)</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-50">

@@ -2,13 +2,14 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createContext, useState, useEffect, useMemo } from "react";
 import toast from "react-hot-toast";
 import useAuth from "../../../hooks/useAuth";
-import useAxiosSecure from "../../../hooks/useAxiosSecures";
+import useAxiosPublic from "../../../hooks/useAxiosPublic";
+
 
 export const CartContext = createContext(null);
 
 const CartProvider = ({ children }) => {
   const { user, loading: authLoading } = useAuth();
-  const axiosSecure = useAxiosSecure();
+  const axiosPublic = useAxiosPublic();
   const [localCart, setLocalCart] = useState([]);
 
   // Fetch from DB
@@ -20,7 +21,7 @@ const CartProvider = ({ children }) => {
     queryKey: ["cart", user?.email],
     enabled: !!user?.email && !authLoading,
     queryFn: async () => {
-      const res = await axiosSecure.get(`/carts?email=${user.email}`);
+      const res = await axiosPublic.get(`/carts?email=${user.email}`);
       return res.data;
     },
   });
@@ -54,7 +55,7 @@ const CartProvider = ({ children }) => {
         email: user.email,
         quantity: product.quantity || 1,
       };
-      const res = await axiosSecure.post("/carts", cartItem);
+      const res = await axiosPublic.post("/carts", cartItem);
       return res.data;
     },
     onSuccess: () => {
@@ -90,7 +91,7 @@ const CartProvider = ({ children }) => {
 
   const { mutate: dbRemoveFromCart } = useMutation({
     mutationFn: async (id) => {
-      const resDel = await axiosSecure.delete(`/carts/${id}`);
+      const resDel = await axiosPublic.delete(`/carts/${id}`);
       return resDel.data;
     },
     onSuccess: () => {
@@ -112,7 +113,7 @@ const CartProvider = ({ children }) => {
 
   const clearCart = async () => {
     if (user?.email) {
-      await axiosSecure.delete(`/carts/clear?email=${user.email}`);
+      await axiosPublic.delete(`/carts/clear?email=${user.email}`);
       refetch();
     } else {
       localStorage.removeItem("cart");

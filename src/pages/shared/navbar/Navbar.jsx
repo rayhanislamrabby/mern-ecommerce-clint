@@ -15,7 +15,8 @@ import {
 
 import useAuth from "../../../hooks/useAuth";
 import { CartContext } from "../../../context/AuthContext/CartContext/CartProvider";
-import useAxiosSecure from "../../../hooks/useAxiosSecures";
+import useAxiosPublic from "../../../hooks/useAxiosPublic";
+
 
 const NAV_LINKS = [
   { name: "Home", path: "/" },
@@ -72,7 +73,7 @@ const Navbar = () => {
   const { user, logOut } = useAuth();
   const { cart = [], removeFromCart } = useContext(CartContext);
   const navigate = useNavigate();
-  const axiosSecure = useAxiosSecure();
+  const axiosSecure = useAxiosPublic();
 
   const { data: allProducts = [] } = useQuery({
     queryKey: ["allProductsSearch"],

@@ -1,12 +1,13 @@
 import React, { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import useAxiosSecure from "../../hooks/useAxiosSecures";
+
 import { ChevronDown, Filter } from "lucide-react";
+import useAxiosPublic from "../../hooks/useAxiosPublic";
 
 const AllProducts = () => {
   const navigate = useNavigate();
-  const axiosSecure = useAxiosSecure();
+  const axiosSecure = useAxiosPublic();
 
   // States
   const [selectedCategory, setSelectedCategory] = useState("All");

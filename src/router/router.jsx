@@ -20,6 +20,7 @@ import Checkout from "../pages/checkout/Checkout";
 import Payments from "../pages/checkout/Payments/Payments";
 import AddCoupon from "../pages/DashBorad/Coupons/AddCoupon";
 import ManageCoupons from "../pages/DashBorad/Coupons/ManageCoupons";
+import MakeAsAdmin from "../pages/DashBorad/MakeAsAdmin/MakeAsAdmin";
 
 export const router = createBrowserRouter([
   {
@@ -94,6 +95,10 @@ export const router = createBrowserRouter([
       {
         path: "managecoupons",
         element: <ManageCoupons></ManageCoupons>,
+      },
+      {
+        path: "makeasdadmin",
+        element: <MakeAsAdmin></MakeAsAdmin>,
       },
     ],
   },

@@ -1,37 +1,53 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
-import { FcGoogle } from "react-icons/fc";
-import { NavLink } from "react-router";
+import { NavLink, useNavigate } from "react-router"; // Navigate add kora hoyeche
 import useAuth from "../../hooks/useAuth";
 import SocalLogin from "./SocalLogin";
+
+import toast from "react-hot-toast";
+import useAxiosPublic from "../../hooks/useAxiosPublic";
 
 const Register = () => {
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors },
   } = useForm();
 
-  const { creatUser } = useAuth();
-
+  const { creatUser, updateUserProfile } = useAuth(); // Profile update feature thakle
+  const axiosPublic = useAxiosPublic();
+  const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
 
-  useEffect(() => {
-    // Removed subscription logic as it's not needed with direct watch usage
-    return () => {};
-  }, []);
+  const onSubmit = async (data) => {
+    try {
+      // 1. Firebase-e user create kora
+      const result = await creatUser(data.email, data.password);
+      const loggedUser = result.user;
+      console.log("Firebase User Created:", loggedUser);
 
-  const onSubmit = (data) => {
-    creatUser(data.email, data.password, data.name)
-      .then((result) => {
-        console.log(result.user);
-      })
-      .catch((error) => {
-        console.log(error);
-      });
+      // 2. User info object (Default role: user)
+      const userInfo = {
+        name: data.name,
+        email: data.email,
+        role: "user", // Default Role Set
+        createdAt: new Date(),
+      };
 
-    console.log("Register Data:", data);
+      // 3. AxiosPublic diye database-e save kora
+      const res = await axiosPublic.post("/users", userInfo);
+
+      if (res.data.insertedId) {
+        reset();
+        toast.success("Account created success! ✨");
+        navigate("/"); // Home page-e niye jabe
+      }
+    } catch (error) {
+      console.error("Error during registration:", error);
+      toast.error(error.message || "Registration failed!");
+    }
   };
 
   return (
@@ -50,9 +66,7 @@ const Register = () => {
             <input
               type="text"
               placeholder="Full name"
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg
-              text-gray-800 placeholder-gray-400
-              focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
               {...register("name", { required: "Name is required" })}
             />
             {errors.name && (
@@ -65,9 +79,7 @@ const Register = () => {
             <input
               type="email"
               placeholder="Email address"
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg
-              text-gray-800 placeholder-gray-400
-              focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
               {...register("email", { required: "Email is required" })}
             />
             {errors.email && (
@@ -82,40 +94,41 @@ const Register = () => {
             <input
               type={showPassword ? "text" : "password"}
               placeholder="Create password"
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg
-              text-gray-800 placeholder-gray-400
-              focus:outline-none focus:ring-2 focus:ring-blue-500"
-              {...register("password", { required: "Password is required" })}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              {...register("password", { 
+                required: "Password is required",
+                minLength: { value: 6, message: "Password must be 6 characters" } 
+              })}
             />
-
             <span
               onClick={() => setShowPassword(!showPassword)}
               className="absolute right-4 top-1/2 -translate-y-1/2 cursor-pointer text-gray-500"
             >
               {showPassword ? <FaEyeSlash /> : <FaEye />}
             </span>
+            {errors.password && (
+              <p className="text-red-500 text-sm mt-1">
+                {errors.password.message}
+              </p>
+            )}
           </div>
 
-          {/* Button */}
           <button
             type="submit"
-            className="w-full py-3 bg-blue-600 text-white rounded-lg
-            font-semibold hover:bg-blue-700 transition"
+            className="w-full py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition"
           >
             Sign Up
           </button>
         </form>
 
-        {/* Divider */}
         <div className="flex items-center gap-3 my-6">
           <div className="flex-1 h-px bg-gray-200" />
           <span className="text-gray-400 text-sm">or</span>
           <div className="flex-1 h-px bg-gray-200" />
         </div>
 
-        {/* Google */}
-     <SocalLogin></SocalLogin>
-        {/* Login link */}
+        <SocalLogin />
+
         <p className="text-center text-sm text-gray-600 mt-6">
           Already have an account?{" "}
           <NavLink

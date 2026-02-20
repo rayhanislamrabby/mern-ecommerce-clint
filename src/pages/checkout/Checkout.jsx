@@ -1,323 +1,3 @@
-// import React, { useState, useEffect, useContext } from "react";
-// import { useForm } from "react-hook-form";
-// import { useLocation, useNavigate } from "react-router-dom";
-// import { toast, Toaster } from "react-hot-toast";
-// import Swal from "sweetalert2";
-// import { CartContext } from "../../context/AuthContext/CartContext/CartProvider";
-// import {
-//   CreditCard,
-//   Truck,
-//   ArrowLeft,
-//   Plus,
-//   Minus,
-//   ShieldCheck,
-// } from "lucide-react";
-// import useAxiosSecure from "../../hooks/useAxiosSecures";
-// import { districts } from "./Districts";
-
-// const Checkout = () => {
-//   const axiosSecure = useAxiosSecure();
-//   const navigate = useNavigate();
-//   const location = useLocation();
-
-//   const { cart, clearCart, isLoading } = useContext(CartContext);
-
-//   const [items, setItems] = useState([]);
-//   const [discount, setDiscount] = useState(0);
-//   const [coupon, setCoupon] = useState("");
-//   const [paymentMethod, setPaymentMethod] = useState("cashondelivery");
-
-//   const isBuyNow = !!location.state?.buyNow;
-
-//   const { register, handleSubmit, watch } = useForm({
-//     defaultValues: { district: "Dhaka" },
-//   });
-
-//   useEffect(() => {
-//     if (!isLoading) {
-//       const data = location.state?.cartItems || cart;
-//       if (data?.length) setItems(data);
-//       else navigate("/");
-//     }
-//   }, [isLoading, cart, location.state, navigate]);
-
-//   // quantity change
-//   const updateQty = (id, type) => {
-//     setItems((prev) =>
-//       prev.map((item) => {
-//         if (item._id === id) {
-//           const qty = item.quantity || 1;
-//           const newQty = type === "inc" ? qty + 1 : qty - 1;
-//           return { ...item, quantity: newQty > 0 ? newQty : 1 };
-//         }
-//         return item;
-//       }),
-//     );
-//   };
-
-//   // ===== PRICE =====
-//   const subtotal = items.reduce((a, i) => a + i.price * (i.quantity || 1), 0);
-//   const shipping = watch("district") === "Dhaka" ? 80 : 120;
-//   const total = subtotal - discount + shipping;
-
-//   // ===== APPLY COUPON =====
-//   const applyCoupon = async () => {
-//     try {
-//       // 1. Check if coupon is valid
-//       const res = await axiosSecure.get(
-//         `/coupons/${coupon}?amount=${subtotal}`,
-//       );
-
-//       // 2. Logic: If valid, increment the usedCount in Database
-//       // Eta apply hobar sathe sathe count bariye dibe
-//       await axiosSecure.patch(`/coupons/update-count/${coupon}`);
-
-//       // 3. Calculate discount
-//       const d =
-//         res.data.discountType === "fixed"
-//           ? res.data.discountValue
-//           : (subtotal * res.data.discountValue) / 100;
-
-//       setDiscount(d);
-//       toast.success("Coupon Applied & Count Updated! 🎫");
-//     } catch (err) {
-//       setDiscount(0);
-//       toast.error(err.response?.data?.message || "Invalid Coupon");
-//     }
-//   };
-
-//   const onSubmit = async (formData) => {
-//     const isBuyNow = !!location.state?.buyNow;
-
-//     const cartIdsForBackend = isBuyNow ? [] : items.map((i) => i._id);
-
-//     const orderData = {
-//       ...formData,
-//       items,
-//       subtotal,
-//       shippingFee: shipping,
-//       discount,
-//       totalAmount: total,
-//       paymentMethod,
-//       orderDate: new Date(),
-//       cartIds: cartIdsForBackend,
-//       isBuyNow: isBuyNow,
-//     };
-
-//     try {
-//       if (paymentMethod === "cashondelivery") {
-//         const result = await Swal.fire({
-//           title: "Confirm Your Order?",
-//           text: `You have to pay ৳${total} on delivery.`,
-//           icon: "info",
-//           showCancelButton: true,
-//           confirmButtonColor: "#000",
-//           cancelButtonColor: "#d33",
-//           confirmButtonText: "Confirm",
-//         });
-
-//         if (result.isConfirmed) {
-//           const res = await axiosSecure.post("/orders", {
-//             ...orderData,
-//             paymentStatus: "unpaid",
-//             transactionId: null,
-//           });
-
-//           if (res.data?.insertedId) {
-//             if (!isBuyNow) {
-//               clearCart();
-//             }
-
-//             Swal.fire("Success!", "Your order is placed.", "success");
-//             navigate("/");
-//           }
-//         }
-//         return;
-//       }
-
-//       const { data } = await axiosSecure.post("/create-payment-intent", {
-//         price: total,
-//       });
-//       if (data?.clientSecret) {
-//         navigate("/payments", {
-//           state: { orderInfo: orderData, clientSecret: data.clientSecret },
-//         });
-//       }
-//     } catch (err) {
-//       console.error("Submit Error:", err);
-
-//       toast.error(
-//         err.response?.data?.message || "Order Failed! Server error 500.",
-//       );
-//     }
-//   };
-
-//   if (isLoading)
-//     return (
-//       <div className="h-screen flex items-center justify-center">
-//         Loading...
-//       </div>
-//     );
-
-//   return (
-//     <div className="min-h-screen bg-white py-12 px-4 text-black">
-//       <Toaster />
-//       <form
-//         onSubmit={handleSubmit(onSubmit)}
-//         className="max-w-6xl mx-auto flex flex-col lg:flex-row gap-12"
-//       >
-//         {/* LEFT FORM */}
-//         <div className="flex-1 space-y-6">
-//           <button
-//             type="button"
-//             onClick={() => navigate(-1)}
-//             className="flex items-center gap-2 text-blue-600"
-//           >
-//             <ArrowLeft size={16} /> Back
-//           </button>
-//           <h2 className="text-3xl font-bold">Shipping Information</h2>
-//           <div className="grid md:grid-cols-2 gap-4">
-//             {["name", "phone", "email", "thana", "zip"].map((f) => (
-//               <input
-//                 key={f}
-//                 {...register(f, { required: true })}
-//                 placeholder={f}
-//                 className="border border-black px-3 py-2 text-sm text-black w-full"
-//               />
-//             ))}
-//             <select
-//               {...register("district")}
-//               className="border border-black px-3 py-2 text-sm text-black w-full"
-//             >
-//               {districts.map((d) => (
-//                 <option key={d}>{d}</option>
-//               ))}
-//             </select>
-//             <textarea
-//               {...register("address", { required: true })}
-//               placeholder="Full Address"
-//               className="border border-black px-3 py-2 text-sm text-black w-full h-24 md:col-span-2"
-//             />
-//           </div>
-//         </div>
-
-//         {/* RIGHT SUMMARY */}
-//         <div className="w-full lg:w-[420px] border-2 border-black p-6 space-y-4 bg-white shadow-[5px_5px_0px_#000]">
-//           <h2 className="text-xl font-bold uppercase">Order Summary</h2>
-//           <div className="space-y-5 max-h-[320px] overflow-y-auto pr-2">
-//             {items.map((item) => (
-//               <div
-//                 key={item._id}
-//                 className="flex items-center gap-4 border-b pb-4"
-//               >
-//                 <img
-//                   src={item.image}
-//                   alt={item.name}
-//                   className="w-16 h-20 object-cover border rounded-md"
-//                 />
-//                 <div className="flex-1">
-//                   <h4 className="text-sm font-semibold text-black truncate w-40">
-//                     {item.name}
-//                   </h4>
-//                   <p className="text-blue-600 font-bold text-sm">
-//                     ৳{item.price}
-//                   </p>
-//                   <div className="flex items-center gap-3 mt-2">
-//                     <button
-//                       type="button"
-//                       onClick={() => updateQty(item._id, "dec")}
-//                       className="border px-2 py-1 rounded hover:bg-gray-100"
-//                     >
-//                       <Minus size={14} />
-//                     </button>
-//                     <span className="font-medium text-black">
-//                       {item.quantity || 1}
-//                     </span>
-//                     <button
-//                       type="button"
-//                       onClick={() => updateQty(item._id, "inc")}
-//                       className="border px-2 py-1 rounded hover:bg-gray-100"
-//                     >
-//                       <Plus size={14} />
-//                     </button>
-//                   </div>
-//                 </div>
-//                 <div className="text-right">
-//                   <p className="text-sm font-bold text-black">
-//                     ৳{item.price * (item.quantity || 1)}
-//                   </p>
-//                 </div>
-//               </div>
-//             ))}
-//           </div>
-
-//           <div className="flex gap-2 pt-2">
-//             <input
-//               value={coupon}
-//               onChange={(e) => setCoupon(e.target.value)}
-//               placeholder="Coupon code"
-//               className="border border-black px-2 py-1 w-full text-black"
-//             />
-//             <button
-//               type="button"
-//               onClick={applyCoupon}
-//               className="bg-blue-600 text-white px-3 text-xs font-bold uppercase"
-//             >
-//               Apply
-//             </button>
-//           </div>
-
-//           <div className="space-y-1 text-sm border-t border-black pt-4">
-//             <p className="flex justify-between">
-//               Subtotal: <span>৳{subtotal}</span>
-//             </p>
-//             <p className="flex justify-between">
-//               Delivery: <span>৳{shipping}</span>
-//             </p>
-//             {discount > 0 && (
-//               <p className="text-green-600 flex justify-between">
-//                 Discount: <span>-৳{discount}</span>
-//               </p>
-//             )}
-//             <p className="text-lg font-bold flex justify-between border-t border-black pt-2 uppercase">
-//               Total: <span>৳{total}</span>
-//             </p>
-//           </div>
-
-//           <div className="grid grid-cols-2 gap-2 mt-4">
-//             <button
-//               type="button"
-//               onClick={() => setPaymentMethod("cashondelivery")}
-//               className={`border p-3 flex flex-col items-center gap-1 ${paymentMethod === "cashondelivery" ? "bg-black text-white" : ""}`}
-//             >
-//               <Truck size={20} />{" "}
-//               <span className="text-[10px] font-bold">CASH ON DELIVERY</span>
-//             </button>
-//             <button
-//               type="button"
-//               onClick={() => setPaymentMethod("card")}
-//               className={`border p-3 flex flex-col items-center gap-1 ${paymentMethod === "card" ? "bg-black text-white" : ""}`}
-//             >
-//               <CreditCard size={20} />{" "}
-//               <span className="text-[10px] font-bold">CARD PAYMENT</span>
-//             </button>
-//           </div>
-
-//           <button
-//             type="submit"
-//             className="w-full py-4 bg-black text-white flex items-center justify-center gap-2 font-bold uppercase tracking-widest hover:bg-gray-800 transition-all"
-//           >
-//             {paymentMethod === "card" ? "Proceed to Payment" : "Confirm Order"}
-//             <ShieldCheck size={18} />
-//           </button>
-//         </div>
-//       </form>
-//     </div>
-//   );
-// };
-
-// export default Checkout;
-
 
 
 import React, { useState, useEffect, useContext } from "react";
@@ -334,11 +14,12 @@ import {
   Minus,
   ShieldCheck,
 } from "lucide-react";
-import useAxiosSecure from "../../hooks/useAxiosSecures";
+
 import { districts } from "./Districts";
+import useAxiosPublic from "../../hooks/useAxiosPublic";
 
 const Checkout = () => {
-  const axiosSecure = useAxiosSecure();
+  const axiosPublic = useAxiosPublic();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -357,7 +38,7 @@ const Checkout = () => {
     defaultValues: { district: "Dhaka" },
   });
 
-  // load cart অথবা buy now
+ 
   useEffect(() => {
     if (!isLoading) {
       const data = location.state?.cartItems || cart;
@@ -391,10 +72,10 @@ const Checkout = () => {
     if (isCouponApplied) return;
 
     try {
-      const res = await axiosSecure.get(`/coupons/${coupon}?amount=${subtotal}`);
+      const res = await axiosPublic.get(`/coupons/${coupon}?amount=${subtotal}`);
 
       // usedCount update করা
-      await axiosSecure.patch(`/coupons/update-count/${coupon}`);
+      await axiosPublic.patch(`/coupons/update-count/${coupon}`);
 
       const d =
         res.data.discountType === "fixed"
@@ -402,7 +83,7 @@ const Checkout = () => {
           : (subtotal * res.data.discountValue) / 100;
 
       setDiscount(d);
-      setIsCouponApplied(true); // ✅ Success hole বাটন ডিসেবল হবে
+      setIsCouponApplied(true); 
       toast.success("Coupon Applied & Count Updated! 🎫");
     } catch (err) {
       setDiscount(0);
@@ -421,7 +102,7 @@ const Checkout = () => {
       subtotal,
       shippingFee: shipping,
       discount,
-      couponCode: isCouponApplied ? coupon : null, // ✅ কুপন সেভ রাখা
+      couponCode: isCouponApplied ? coupon : null, 
       totalAmount: total,
       paymentMethod,
       orderDate: new Date(),
@@ -444,7 +125,7 @@ const Checkout = () => {
 
         if (!result.isConfirmed) return;
 
-        const res = await axiosSecure.post("/orders", {
+        const res = await axiosPublic.post("/orders", {
           ...orderData,
           paymentStatus: "unpaid",
           transactionId: null,
@@ -461,7 +142,7 @@ const Checkout = () => {
       }
 
       // ================= CARD PAYMENT =================
-      const { data } = await axiosSecure.post("/create-payment-intent", {
+      const { data } = await axiosPublic.post("/create-payment-intent", {
         price: total,
       });
 
@@ -578,14 +259,14 @@ const Checkout = () => {
             <input
               value={coupon}
               onChange={(e) => setCoupon(e.target.value)}
-              disabled={isCouponApplied} // ✅ Apply হলে ইনপুট লক
+              disabled={isCouponApplied} 
               placeholder="Coupon code"
               className={`border-2 border-black px-3 py-2 w-full text-black font-bold uppercase outline-none ${isCouponApplied ? "bg-gray-100" : ""}`}
             />
             <button
               type="button"
               onClick={applyCoupon}
-              disabled={isCouponApplied || !coupon} // ✅ বাটন ডিসেবল হবে
+              disabled={isCouponApplied || !coupon} 
               className={`px-4 py-2 text-xs font-black uppercase tracking-widest transition-all ${
                 isCouponApplied 
                 ? "bg-gray-400 text-white cursor-not-allowed" 

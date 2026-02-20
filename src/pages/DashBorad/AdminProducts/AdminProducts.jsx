@@ -154,7 +154,7 @@ const AdminProducts = () => {
                             )}
                           </div>
                           <div className="flex gap-2 mt-1">
-                            <span className="text-[8px] font-black bg-zinc-700 px-2 py-0.5 rounded text-zinc-700 uppercase">
+                            <span className="text-[8px] font-black bg-blue-100 px-2 py-0.5 rounded text-zinc-700 uppercase">
                               {product.category}
                             </span>
                             <span className="text-[8px] font-black bg-indigo-50 px-2 py-0.5 rounded text-indigo-500 uppercase">
