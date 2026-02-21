@@ -7,8 +7,9 @@ import toast from "react-hot-toast";
 import Swal from "sweetalert2";
 import { motion } from "framer-motion";
 import {
-  FileText, Plus, Image as ImageIcon, X, Ruler, 
-  Layers, Palette, Sparkles, UploadCloud, Info
+   Plus, Image as ImageIcon, X, Ruler, 
+  Sparkles, UploadCloud,
+  FileText, 
 } from "lucide-react";
 import useAuth from "../../../hooks/useAuth";
 import useAxiosSecure from "../../../hooks/useAxiosSecures";
@@ -16,7 +17,7 @@ import useAxiosSecure from "../../../hooks/useAxiosSecures";
 const sizesList = ["M", "L", "XL", "XXL"];
 const CATEGORIES = [
   "Panjabi", "Polo Shirt", "Casual Shirt", "Formal Shirt", "T-Shirt",
-  "Pant", "Blazer", "Kurti", "Saree", "Tops", "Borka", "Watch",
+  "Pant", "Blazer", "Kurti", "Saree", "Tops", "Gift Card", "Watch",
   "Wallet", "Belt", "Perfume", "Sunglasses", "Boys Dress", "Girls Dress", "Toys"
 ];
 

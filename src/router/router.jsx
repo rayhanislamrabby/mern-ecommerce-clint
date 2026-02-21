@@ -25,6 +25,7 @@ import AdminRoute from "../routes/AdminRoute";
 import PaidOders from "../pages/DashBorad/Oders/PaidOders";
 import UnpaidOrders from "../pages/DashBorad/Oders/UnpaidOrders";
 
+
 export const router = createBrowserRouter([
   {
     path: "/",
@@ -38,6 +39,11 @@ export const router = createBrowserRouter([
         path: "allproducts",
         Component: AllProducts,
       },
+    
+      {
+        path: "payments",
+        Component: Payments,
+      },
       {
         path: "/category/:categoryName",
         element: <CategoryPage></CategoryPage>,
@@ -50,10 +56,6 @@ export const router = createBrowserRouter([
       {
         path: "/checkout",
         element: <Checkout></Checkout>,
-      },
-      {
-        path: "payments",
-        Component: Payments,
       },
     ],
   },
@@ -71,6 +73,9 @@ export const router = createBrowserRouter([
       },
     ],
   },
+
+  // adminnn
+
   {
     path: "/dashboard",
     element: (

@@ -59,7 +59,7 @@ const NAV_LINKS = [
       { name: "Wallets", path: "/category/Wallet" },
     ],
   },
-  { name: "Gift Card", path: "/giftcard" },
+ 
 ];
 
 const Navbar = () => {
@@ -128,14 +128,14 @@ const Navbar = () => {
             </button>
             <NavLink
               to="/"
-              className="text-xl md:text-2xl font-black pr-6 tracking-tighter text-black uppercase italic"
+              className="text-xl md:text-2xl font-black pr-10 tracking-tighter text-black uppercase italic"
             >
               SHOP<span className="text-blue-700 sm:inline hidden">ZONE.</span>
               <span className="text-blue-700 inline sm:hidden">ZONE.</span>
             </NavLink>
           </div>
 
-          <div className="hidden lg:flex items-center space-x-8">
+          <div className="hidden lg:flex items-center  space-x-10">
             {NAV_LINKS.map((link) => (
               <div
                 key={link.name}
@@ -166,7 +166,7 @@ const Navbar = () => {
                       <NavLink
                         key={sub.name}
                         to={sub.path}
-                        className="block px-6 py-2.5 text-[12px] font-black uppercase text-slate-600 hover:text-blue-700 hover:bg-blue-50/50 border-l-4 border-transparent hover:border-blue-700 transition-all"
+                        className="block px-6 py-2.5 text-[12px] font-black uppercase text-slate-700 hover:text-blue-700 hover:bg-blue-50/50 border-l-4 border-transparent hover:border-blue-700 transition-all"
                       >
                         {sub.name}
                       </NavLink>
