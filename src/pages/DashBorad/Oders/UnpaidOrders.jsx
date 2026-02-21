@@ -190,8 +190,10 @@ const UnpaidOrders = () => {
                     <img src={item.image} className="h-14 w-14 rounded-xl object-cover" alt="" />
                     <div className="flex-1">
                        <div className="flex gap-2 mb-1.5">
-                          <span className="text-[9px] font-black px-2 py-0.5 bg-slate-100 text-slate-500 rounded uppercase tracking-tighter">SKU: {item.sku}</span>
-                          <span className="text-[9px] font-black px-2 py-0.5 bg-indigo-50 text-indigo-600 rounded uppercase">Size: {item.size}</span>
+                          <span className="text-[13px] font-black px-2 py-0.5 bg-slate-100 text-slate-700 rounded uppercase tracking-tighter">SKU: {item.sku}</span>
+                          <span className="text-[13px] font-black px-2 py-0.5 bg-indigo-50 text-indigo-600 rounded uppercase">Size: {item.size}</span>
+                          <span className="text-[13px] font-black px-2 py-0.5 bg-slate-100 text-slate-700 rounded uppercase tracking-tighter">Quantity: {item.quantity}</span>
+                         
                        </div>
                        <p className="text-[13px] font-black text-slate-800 uppercase leading-tight">{item.name}</p>
                     </div>

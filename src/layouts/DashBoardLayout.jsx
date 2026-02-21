@@ -9,7 +9,6 @@ import {
   LogOut,
   Layers,
   ChevronRight,
-
   TicketPlus,
   Tickets,
   UserCog,
@@ -165,7 +164,7 @@ const DashboardLayout = () => {
                 <Layers className="text-white" size={24} />
               </div>
               <h1 className="text-2xl font-[1000] tracking-tighter text-slate-900 uppercase italic">
-                SHOP<span className="text-[#3b49df]">ZONE.</span>
+                SHOP<span className="text-white"> ZONE.</span>
               </h1>
             </div>
           </div>

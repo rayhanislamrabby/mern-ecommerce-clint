@@ -1,5 +1,3 @@
-
-
 import React, { useEffect, useState } from "react";
 import { AuthContext } from "./AuthContex";
 import {
@@ -41,20 +39,12 @@ const AuthProvider = ({ children }) => {
     return result;
   };
 
-// Googlr Login 
-const signInWidthGoogle = () => {
+  // Googlr Login
+  const signInWidthGoogle = () => {
+    setLoading(true);
 
-
-
-setLoading(true);
-
-return signInWithPopup(auth, googleProvider)
-
-}
-
-
-
-
+    return signInWithPopup(auth, googleProvider);
+  };
 
   // 🔓 Logout
   const logOut = async () => {
@@ -67,19 +57,24 @@ return signInWithPopup(auth, googleProvider)
   useEffect(() => {
     const unSubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
-      console.log("user in auth state change:", currentUser);
+
       setLoading(false);
     });
 
     return () => unSubscribe();
   }, []);
 
-  const authInfo = { user, loading, creatUser, signIn, logOut,signInWidthGoogle};
+  const authInfo = {
+    user,
+    loading,
+    creatUser,
+    signIn,
+    logOut,
+    signInWidthGoogle,
+  };
 
   return (
-    <AuthContext.Provider value={authInfo}>
-      {children}
-    </AuthContext.Provider>
+    <AuthContext.Provider value={authInfo}>{children}</AuthContext.Provider>
   );
 };
 

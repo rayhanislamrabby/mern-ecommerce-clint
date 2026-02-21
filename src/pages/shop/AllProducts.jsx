@@ -81,10 +81,10 @@ const AllProducts = () => {
                   setSelectedCategory(cat);
                   setCurrentPage(1);
                 }}
-                className={`text-[10px] whitespace-nowrap font-black tracking-[0.2em] pb-1 transition-all border-b-2 ${
+                className={`text-[13px] whitespace-nowrap font-black tracking-[0.2em] pb-1 transition-all border-b-2 ${
                   selectedCategory === cat
                     ? "border-black text-black"
-                    : "border-transparent text-zinc-700 hover:text-black"
+                    : "border-transparent text-zinc-900 hover:text-black"
                 }`}
               >
                 {cat}

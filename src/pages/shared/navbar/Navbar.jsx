@@ -17,6 +17,7 @@ import useAuth from "../../../hooks/useAuth";
 import { CartContext } from "../../../context/AuthContext/CartContext/CartProvider";
 import useAxiosPublic from "../../../hooks/useAxiosPublic";
 import useUserRole from "../../../hooks/useuserRole";
+import Logo from "../logo/Logo";
 
 const NAV_LINKS = [
   { name: "Home", path: "/" },
@@ -59,7 +60,6 @@ const NAV_LINKS = [
       { name: "Wallets", path: "/category/Wallet" },
     ],
   },
- 
 ];
 
 const Navbar = () => {
@@ -126,12 +126,8 @@ const Navbar = () => {
             >
               <Menu size={26} />
             </button>
-            <NavLink
-              to="/"
-              className="text-xl md:text-2xl font-black pr-10 tracking-tighter text-black uppercase italic"
-            >
-              SHOP<span className="text-blue-700 sm:inline hidden">ZONE.</span>
-              <span className="text-blue-700 inline sm:hidden">ZONE.</span>
+            <NavLink to="/"  className="text-xl md:text-2xl  pr-10 mt tracking-tighter ">
+              <Logo ></Logo>
             </NavLink>
           </div>
 
@@ -277,10 +273,8 @@ const Navbar = () => {
         <div
           className={`absolute top-0 left-0 w-[85%] max-w-[320px] h-full bg-white transition-transform duration-500 shadow-2xl ${openMenu ? "translate-x-0" : "-translate-x-full"}`}
         >
-          <div className="p-6 flex justify-between items-center border-b">
-            <span className="text-xl text-black font-black italic">
-              SHOP<span className="text-blue-700">ZONE.</span>
-            </span>
+          <div className="p-6 flex  justify-between items-center border-b">
+          <Logo></Logo>
             <button
               onClick={() => setOpenMenu(false)}
               className="p-2 text-black rounded-full transition-colors"

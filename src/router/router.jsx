@@ -25,7 +25,6 @@ import AdminRoute from "../routes/AdminRoute";
 import PaidOders from "../pages/DashBorad/Oders/PaidOders";
 import UnpaidOrders from "../pages/DashBorad/Oders/UnpaidOrders";
 
-
 export const router = createBrowserRouter([
   {
     path: "/",
@@ -39,7 +38,7 @@ export const router = createBrowserRouter([
         path: "allproducts",
         Component: AllProducts,
       },
-    
+
       {
         path: "payments",
         Component: Payments,

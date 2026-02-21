@@ -21,21 +21,21 @@ const Checkout = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const { cart, clearCart, isLoading } = useContext(CartContext);
+  const { cart, isLoading } = useContext(CartContext);
 
   const [items, setItems] = useState([]);
   const [discount, setDiscount] = useState(0);
   const [coupon, setCoupon] = useState("");
   const [paymentMethod, setPaymentMethod] = useState("cashondelivery");
-  const [isCouponApplied, setIsCouponApplied] = useState(false); //  Button disable state
+  const [isCouponApplied, setIsCouponApplied] = useState(false);
 
-  //  Buy Now detect (single source of truth)
   const isBuyNow = !!location.state?.buyNow;
 
   const { register, handleSubmit, watch } = useForm({
     defaultValues: { district: "Dhaka" },
   });
 
+  // load items
   useEffect(() => {
     if (!isLoading) {
       const data = location.state?.cartItems || cart;
@@ -44,7 +44,6 @@ const Checkout = () => {
     }
   }, [isLoading, cart, location.state, navigate]);
 
-  // quantity change
   const updateQty = (id, type) => {
     setItems((prev) =>
       prev.map((item) => {
@@ -63,7 +62,7 @@ const Checkout = () => {
   const shipping = watch("district") === "Dhaka" ? 80 : 120;
   const total = subtotal - discount + shipping;
 
-  // ===== APPLY COUPON =====
+  // ===== APPLY COUPON (SAFE) =====
   const applyCoupon = async () => {
     if (!coupon) return toast.error("Please enter a coupon code");
     if (isCouponApplied) return;
@@ -72,9 +71,6 @@ const Checkout = () => {
       const res = await axiosSecure.get(
         `/coupons/${coupon}?amount=${subtotal}`,
       );
-
-      // usedCount update করা
-      await axiosSecure.patch(`/coupons/update-count/${coupon}`);
 
       const d =
         res.data.discountType === "fixed"
@@ -91,76 +87,70 @@ const Checkout = () => {
     }
   };
 
-  // ===== ORDER SUBMIT =====
   const onSubmit = async (formData) => {
+    const cleanedItems = items.map((i) => ({
+      productId: typeof i._id === "string" ? i._id.split("-")[0] : i._id,
+      name: i.name,
+      price: i.price,
+      quantity: i.quantity || 1,
+      image: i.image,
+      size: i.size || "N/A",
+    }));
+
     const cartIdsForBackend = isBuyNow ? [] : items.map((i) => i._id);
 
     const orderData = {
       ...formData,
-      items,
-      subtotal,
-
+      items: cleanedItems,
+      subtotal: subtotal,
       shippingFee: shipping,
-      discount,
-
-      couponCode: isCouponApplied ? coupon : null,
+      discount: discount,
       totalAmount: total,
       paymentMethod,
       orderDate: new Date(),
       deliveryStatus: "pending",
+      paymentStatus: paymentMethod === "cashondelivery" ? "unpaid" : "paid",
+        couponCode: isCouponApplied ? coupon.toUpperCase() : null,
       cartIds: cartIdsForBackend,
       isBuyNow,
     };
 
     try {
-      // ================= COD =================
       if (paymentMethod === "cashondelivery") {
-        const result = await Swal.fire({
-          title: "Confirm Your Order?",
-          text: `You have to pay ৳${total} on delivery.`,
-          icon: "info",
-          showCancelButton: true,
-          confirmButtonColor: "#000",
-          cancelButtonColor: "#d33",
-          confirmButtonText: "Confirm",
-        });
-
-        if (!result.isConfirmed) return;
-
-        const res = await axiosSecure.post("/orders", {
-          ...orderData,
-          paymentStatus: "unpaid",
-          transactionId: null,
-        });
-
-        if (res.data?.insertedId) {
-          if (!isBuyNow) {
-            await clearCart();
-          }
-          Swal.fire("Success!", "Your order is placed.", "success");
+        const { data } = await axiosSecure.post("/orders", orderData);
+        if (data.insertedId) {
+          Swal.fire({
+            title: "Order Successful!",
+            text: "Your order is placed. Payment status: UNPAID",
+            icon: "success",
+            confirmButtonColor: "#000",
+          });
           navigate("/");
         }
-        return;
-      }
-
-      // ================= CARD PAYMENT =================
-      const { data } = await axiosSecure.post("/create-payment-intent", {
-        price: total,
-      });
-
-      if (data?.clientSecret) {
-        navigate("/payments", {
-          state: { orderInfo: orderData, clientSecret: data.clientSecret },
+      } else {
+        toast.loading("Initializing payment...", { id: "p-load" });
+        const res = await axiosSecure.post("/create-payment-intent", {
+          items: cleanedItems,
+          couponCode: isCouponApplied ? coupon : null,
+          district: watch("district"),
         });
+        toast.dismiss("p-load");
+
+        if (res.data.clientSecret) {
+          navigate("/payments", {
+            state: {
+              orderInfo: orderData,
+              clientSecret: res.data.clientSecret,
+            },
+          });
+        }
       }
     } catch (err) {
-      console.error("Submit Error:", err);
-      toast.error(
-        err.response?.data?.message || "Order Failed! Server error 500.",
-      );
+      toast.dismiss("payment-loading");
+      console.error("Order Submit Error:", err);
+      toast.error(err.response?.data?.message || "Something went wrong!");
     }
   };
-
   if (isLoading)
     return (
       <div className="h-screen flex items-center justify-center">
@@ -175,7 +165,6 @@ const Checkout = () => {
         onSubmit={handleSubmit(onSubmit)}
         className="max-w-6xl mx-auto flex flex-col lg:flex-row gap-12"
       >
-        {/* LEFT FORM */}
         <div className="flex-1 space-y-6">
           <button
             type="button"

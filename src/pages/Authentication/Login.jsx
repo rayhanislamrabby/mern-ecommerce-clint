@@ -1,5 +1,3 @@
-
-
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
@@ -7,10 +5,14 @@ import { Link, NavLink, useNavigate, useLocation } from "react-router-dom";
 import SocalLogin from "./SocalLogin";
 import useAuth from "../../hooks/useAuth";
 import toast from "react-hot-toast";
-import { motion } from "framer-motion"; 
+import { motion } from "framer-motion";
 
 const Login = () => {
-  const { register, handleSubmit, formState: { errors } } = useForm();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm();
   const { signIn } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -21,7 +23,12 @@ const Login = () => {
     signIn(data.email.trim(), data.password.trim())
       .then(() => {
         toast.success("Welcome Back!", {
-          style: { background: "#000", color: "#fff", fontWeight: "900", borderRadius: "0px" },
+          style: {
+            background: "#000",
+            color: "#fff",
+            fontWeight: "900",
+            borderRadius: "0px",
+          },
         });
         setTimeout(() => navigate(from, { replace: true }), 1000);
       })
@@ -32,7 +39,7 @@ const Login = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#fafafa] px-4 font-sans">
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, ease: "easeOut" }}
@@ -59,21 +66,34 @@ const Login = () => {
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
           {/* Email Input */}
           <div className="space-y-1">
-            <label className="text-[10px] font-black uppercase tracking-widest ml-1 text-gray-500">Email Address</label>
+            <label className="text-[10px] font-black uppercase tracking-widest ml-1 text-gray-500">
+              Email Address
+            </label>
             <input
               type="email"
               placeholder="name@example.com"
               className="w-full px-5 py-4 bg-gray-50 border-none rounded-2xl text-sm font-bold text-black focus:ring-2 focus:ring-indigo-600 transition-all outline-none"
               {...register("email", { required: "Email is required" })}
             />
-            {errors.email && <p className="text-red-500 text-[10px] font-bold uppercase mt-1 ml-1">{errors.email.message}</p>}
+            {errors.email && (
+              <p className="text-red-500 text-[10px] font-bold uppercase mt-1 ml-1">
+                {errors.email.message}
+              </p>
+            )}
           </div>
 
           {/* Password Input */}
           <div className="space-y-1">
             <div className="flex justify-between items-center px-1">
-              <label className="text-[10px] font-black uppercase tracking-widest text-gray-500">Password</label>
-              <Link to="/forgot" className="text-[10px] font-black uppercase text-indigo-600 hover:underline">Forgot?</Link>
+              <label className="text-[10px] font-black uppercase tracking-widest text-gray-500">
+                Password
+              </label>
+              <Link
+                to="/forgot"
+                className="text-[10px] font-black uppercase text-indigo-600 hover:underline"
+              >
+                Forgot?
+              </Link>
             </div>
             <div className="relative">
               <input
@@ -89,7 +109,11 @@ const Login = () => {
                 {showPassword ? <FaEyeSlash size={18} /> : <FaEye size={18} />}
               </span>
             </div>
-            {errors.password && <p className="text-red-500 text-[10px] font-bold uppercase mt-1 ml-1">{errors.password.message}</p>}
+            {errors.password && (
+              <p className="text-red-500 text-[10px] font-bold uppercase mt-1 ml-1">
+                {errors.password.message}
+              </p>
+            )}
           </div>
 
           {/* Login Button */}
@@ -106,23 +130,28 @@ const Login = () => {
         {/* Divider */}
         <div className="flex items-center gap-4 my-8">
           <div className="flex-1 h-[1px] bg-gray-100" />
-          <span className="text-gray-300 text-[10px] font-black uppercase tracking-widest">OR</span>
+          <span className="text-gray-300 text-[10px] font-black uppercase tracking-widest">
+            OR
+          </span>
           <div className="flex-1 h-[1px] bg-gray-100" />
         </div>
 
         {/* Social Login Section */}
-        <motion.div 
-           initial={{ opacity: 0 }}
-           animate={{ opacity: 1 }}
-           transition={{ delay: 0.4 }}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.4 }}
         >
           <SocalLogin />
         </motion.div>
 
         {/* Footer Link */}
         <p className="text-center text-[11px] font-bold text-gray-400 mt-8 uppercase tracking-widest">
-          New here? 
-          <NavLink to="/register" className="text-indigo-600 font-[1000] ml-2 hover:underline tracking-tighter">
+          New here?
+          <NavLink
+            to="/register"
+            className="text-indigo-600 font-[1000] ml-2 hover:underline tracking-tighter"
+          >
             Create Account
           </NavLink>
         </p>
