@@ -24,6 +24,7 @@ import MakeAsAdmin from "../pages/DashBorad/MakeAsAdmin/MakeAsAdmin";
 import AdminRoute from "../routes/AdminRoute";
 import PaidOders from "../pages/DashBorad/Oders/PaidOders";
 import UnpaidOrders from "../pages/DashBorad/Oders/UnpaidOrders";
+import DashBoardHome from "../pages/DashBorad/Dashboardhome/DashBoardHome";
 
 export const router = createBrowserRouter([
   {
@@ -83,6 +84,10 @@ export const router = createBrowserRouter([
       </AdminRoute>
     ),
     children: [
+      {
+        index: true,
+        element: <DashBoardHome></DashBoardHome>,
+      },
       {
         path: "addproducts",
         element: <AddProducts />,

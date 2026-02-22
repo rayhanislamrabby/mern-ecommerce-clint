@@ -18,15 +18,12 @@ import {
 } from "lucide-react";
 import useAuth from "../hooks/useAuth";
 
+
 const DashboardLayout = () => {
   const { user, logOut } = useAuth();
 
   const menuLinks = [
-    {
-      name: "Analytics",
-      path: "/dashboard",
-      icon: <LayoutDashboard size={20} />,
-    },
+  
     {
       name: "Paid Orders",
       path: "/dashboard/paidoders",
