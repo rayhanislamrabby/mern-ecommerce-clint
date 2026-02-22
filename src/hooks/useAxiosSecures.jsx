@@ -1,10 +1,9 @@
-
 import axios from "axios";
 import { useEffect } from "react";
 import useAuth from "./useAuth";
 
 const axiosSecure = axios.create({
-  baseURL: `https://e-commerce-server-zeta-nine.vercel.app`,
+  baseURL: `https://e-commerce-server-liart.vercel.app`,
 });
 
 const useAxiosSecure = () => {
@@ -19,7 +18,7 @@ const useAxiosSecure = () => {
         }
         return config;
       },
-      (error) => Promise.reject(error)
+      (error) => Promise.reject(error),
     );
 
     return () => {
