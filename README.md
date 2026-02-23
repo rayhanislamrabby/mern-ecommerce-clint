@@ -7,7 +7,10 @@ ShopZoon is a modern, responsive e-commerce web application built with **React**
 
 
 Admin Email And Password 
+
+
 Email: admin@gmail.com
+
 pass: admin@gmail.com
 
 ## ✨ Key Features
