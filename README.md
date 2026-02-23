@@ -5,6 +5,11 @@ ShopZoon is a modern, responsive e-commerce web application built with **React**
 ## 🚀 Live Demo
 🔗 [ShopZoon Live Site](https://shop-zoon-6f877.web.app/)
 
+
+Admin Email And Password 
+Email: admin@gmail.com
+pass: admin@gmail.com
+
 ## ✨ Key Features
 * **🔒 Secure Authentication:** Handled via Firebase with role-based access control.
 * **💳 Seamless Payments:** Integrated with Stripe for secure and fast checkout.
