@@ -3,7 +3,7 @@
 ShopZoon is a modern, responsive e-commerce web application built with **React** and **Vite**. It provides a seamless shopping experience for users and a powerful management tool for admins.
 
 ## 🚀 Live Demo
-🔗 [ShopZoon Live Site](https://shop-zo-on-6f877.web.app/)
+🔗 [ShopZoon Live Site](https://shop-zoon-6f877.web.app/)
 
 ## ✨ Key Features
 * **🔒 Secure Authentication:** Handled via Firebase with role-based access control.
@@ -22,4 +22,7 @@ ShopZoon is a modern, responsive e-commerce web application built with **React**
 
 1. **Clone the Repo:**
    ```bash
-   git clone [https://github.com/rayhanislamrabby/mern-ecommerce-clint.git](https://github.com/rayhanislamrabby/mern-ecommerce-clint.git)
+   git clone [https://github.com/rayhanislamrabby/mern-ecommerce-clint.git]
+2. Server Link : https://github.com/rayhanislamrabby/mern-ecommerce-server
+3. git clone server [https://github.com/rayhanislamrabby/mern-ecommerce-server.git]
+4. 
